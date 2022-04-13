@@ -29,22 +29,24 @@ class PreprocessorConfig:
 
     def __init__(self,
                  lowercase: bool,
-                 remove_accents: bool,
+                 remove_accents_before_stemming: bool,
                  remove_punctuation: bool,
                  remove_stopwords: bool,
                  use_stemmer: bool,
-                 lang: str
+                 lang: str,
+                 remove_accents_after_stemming: bool
                  ):
         """
         Configuration for preprocessor
         :param lowercase: lowercase all words
-        :param remove_accents: remove accents
+        :param remove_accents_before_stemming: remove accents
         :param remove_stopwords: remove stopwords
         :param use_stemmer: use stemmer if this is set to false lemmatizer will be used instead
         :param lang: language of the text
         """
         self.lowercase = lowercase
-        self.remove_accents = remove_accents
+        self.remove_accents = remove_accents_before_stemming
+        self.remove_accents_after_stemming = remove_accents_after_stemming
         self.remove_punctuation = remove_punctuation
         self.remove_stopwords = remove_stopwords
         self.use_stemmer = use_stemmer
@@ -52,6 +54,7 @@ class PreprocessorConfig:
 
         if lang not in supported_langs:
             raise ValueError('Language not supported')
+
 
 class Preprocessor:
 
@@ -73,7 +76,7 @@ class Preprocessor:
 
         # remove accents
         if self.config.remove_accents:
-            text = self.remove_accents(text)
+            text = self._remove_accents(text)
 
         # remove punctuation
         if self.config.remove_punctuation:
@@ -84,15 +87,18 @@ class Preprocessor:
 
         # remove stopwords
         if self.config.remove_stopwords:
-            text = self.remove_stopwords(text)
+            text = self._remove_stopwords(text)
 
         # use stemmer or lemmatizer
         text = self.stemmer.stem(text) if self.config.use_stemmer else self.lemmatizer.lemmatize(text)
 
+        if self.config.remove_accents_after_stemming:
+            text = self._remove_accents(text)
+
         return text
 
     @staticmethod
-    def remove_accents(text: str) -> str:
+    def _remove_accents(text: str) -> str:
         """
         Removes accents from the text
         :param text: text to be processed
@@ -102,11 +108,10 @@ class Preprocessor:
             'ASCII', 'ignore').decode('utf-8', 'ignore')
         return text
 
-    def remove_stopwords(self, text: list) -> list:
+    def _remove_stopwords(self, text: list) -> list:
         """
         Removes stopwords from the text
         :param text: text to be processed
         :return: text without stopwords
         """
         return [word for word in text if word not in stopwords.words(self.config.lang)]
-
