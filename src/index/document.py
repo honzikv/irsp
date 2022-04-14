@@ -1,6 +1,7 @@
 class Document:
     """
-    Base interface to represent any document that can be indexed
+    Base interface to represent any document that can be indexed.
+    Any document that can be indexed should implement this interface.
     """
 
     def __init__(self, doc_id, tokens):

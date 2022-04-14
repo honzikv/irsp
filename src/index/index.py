@@ -1,15 +1,18 @@
 # dictionary of all indices
-from typing import Iterable, List
+from typing import Iterable, List, Dict
 
 from src.index.document import Document
 
 # All indexes
+from src.index.term_info import TermInfo
+from src.search.tfidf import calculate_tfidf
+
 _indices = {}
 
-# Default models
+# Default search
 default_models = ['tf_idf', 'boolean']
 
-# Additional models that can be added to the default models
+# Additional search that can be added to the default search
 additional_models = ['transformers', 'doc2vec']
 
 
@@ -33,9 +36,9 @@ class Index:
     """
 
     def __init__(self, config: IndexConfig, initial_batch: List[Document]):
-        self.config = config
-        self.inverted_idx = {}  # inverted index for searching
-        self.documents = {}  # dictionary of all documents in the index
+        self.config: IndexConfig = config
+        self.inverted_idx: Dict[str, TermInfo] = {}  # inverted index for searching
+        self.documents: Dict[int, Document] = {}  # dictionary of all documents in the index
         self._create_initial_batch(initial_batch)
 
     def add_batch(self, documents: Iterable[Document]):
@@ -62,6 +65,14 @@ class Index:
             bow = document.bow
 
             inverted_idx = self.inverted_idx
-            for term, occurences in bow.items():
+            for term, occurrences in bow.items():
                 if term not in inverted_idx:
-                    inverted_idx[term]
+                    inverted_idx[term] = TermInfo(document, term)
+                else:
+                    inverted_idx[term].append_document(document, term)
+
+        n_docs = len(self.documents.values())
+        # Now calculate the tf_idf for all terms
+        for term_info in self.inverted_idx.values():
+            calculate_tfidf(term_info, n_docs)
+

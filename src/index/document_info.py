@@ -15,7 +15,7 @@ class DocumentInfo:
         self.document = document
         self.term_frequency = frequency
         self.tfidf = None
-        # TODO more fields for specific models
+        # TODO more fields for specific search
 
     def __str__(self):
         return f"""

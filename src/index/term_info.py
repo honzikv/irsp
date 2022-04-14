@@ -1,3 +1,5 @@
+from typing import Dict
+
 from src.index.document import Document
 from src.index.document_info import DocumentInfo
 
@@ -15,7 +17,7 @@ class TermInfo:
         """
         # Documents are stored as a dictionary with document id as key and document as value
         doc_term_frequency = document.bow[term_name]
-        self.documents = {document.doc_id: DocumentInfo(document, doc_term_frequency)}
+        self.documents: Dict[int, DocumentInfo] = {document.doc_id: DocumentInfo(document, doc_term_frequency)}
         self.collection_frequency = doc_term_frequency
         self.document_frequency = 1
 
