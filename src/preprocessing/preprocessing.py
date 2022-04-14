@@ -63,9 +63,9 @@ class Preprocessor:
         self.stemmer = stemmers[self.config.lang]
         self.lemmatizer = lemmatizers[self.config.lang]
 
-    def get_terms(self, text: str) -> list:
+    def get_tokens(self, text: str) -> list:
         """
-        Returns all terms found in the text
+        Returns all tokens found in the text
         :param text: text to be processed
         :return: list of terms
         """
