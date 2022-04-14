@@ -6,7 +6,7 @@ import numpy as np
 
 indexes = {}
 
-current_doc_id = 0
+_current_doc_id = 0
 
 
 def get_next_doc_id():
@@ -14,7 +14,7 @@ def get_next_doc_id():
     Get next doc id for indexation
     :return: int
     """
-    global current_doc_id
+    global _current_doc_id
     doc_id = current_doc_id
     current_doc_id += 1
     return doc_id
@@ -98,9 +98,9 @@ class Index:
     def __init__(self, name: str):
         self.name = name
         self.inverted_idx = {}  # term -> {doc_id -> DocumentStats}
-        self.documents = []  # List of all documents
+        self.documents = {}  # doc_id -> Document
 
-    def add_batch(self, batch: Iterable[Document]):
+    def initialize(self, batch: Iterable[Document]):
         """
         Inserts batch of documents to the index
         :param batch: Iterable of documents
@@ -108,8 +108,11 @@ class Index:
         """
 
         for document in batch:
-            self.documents.append(document)
-            bow = document.bow
+            if document.doc_id in self.documents:
+                raise ValueError(f"Document with id {document.doc_id} already exists in the index")
+
+            self.documents[document.doc_id] = document
+            bow = document.bow  # initialize bag of words
 
             inverted_idx = self.inverted_idx
             for term, occurrences in bow.items():
@@ -118,8 +121,15 @@ class Index:
                 else:
                     inverted_idx[term].add_document_stats(document, occurrences)
 
-        for term in inverted_idx:
-            inverted_idx[term].calculate_tf_idf(len(self.documents))
+            for term in inverted_idx:
+                inverted_idx[term].calculate_tf_idf(len(self.documents))
+
+    def add_document(self, document: Document):
+        """
+        Adds new document to the index
+        :param document:
+        :return:
+        """
 
 
 def add_idx(idx: Index):
