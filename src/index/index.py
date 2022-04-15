@@ -2,6 +2,7 @@
 from typing import Iterable, List, Dict
 
 from src.api.indices import DocumentDto
+from src.api.indices_dtos import IndexDto
 from src.index.document import Document
 from src.index.term_info import TermInfo
 from src.preprocessing.preprocessing import Preprocessor
@@ -197,6 +198,22 @@ class Index:
 
         return res
 
+    def to_dto(self, n_example_docs=10) -> IndexDto:
+        """
+        Converts this to IndexDto
+        :return: instance of IndexDto
+        """
+        return IndexDto(
+            name=self.config.name,
+            models=self.models.keys(),
+            nTerms=len(self.inverted_idx),
+            nDocs=len(self.documents),
+            exampleDocuments=[DocumentDto.from_domain_object(doc) for doc in
+                              # Get first n_example_docs documents or all documents if the collection is smaller
+                              self.documents.values()[
+                              :n_example_docs if len(self.documents) > n_example_docs else len(self.documents)]]
+        )
+
 
 def get_index(name: str) -> Index:
     """
@@ -230,3 +247,11 @@ def delete_index(name: str):
     if name not in _indices:
         raise ValueError(f'Index {name} does not exist')
     del _indices[name]
+
+
+def get_all_indices() -> List[Index]:
+    """
+    Gets all indices
+    :return: List of indices
+    """
+    return list(map(lambda x: x.to_dto(), _indices.values()))

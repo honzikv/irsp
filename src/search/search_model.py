@@ -3,7 +3,6 @@ from typing import List
 
 from src.index.document import Document
 from src.index.index import Index
-from src.preprocessing.preprocessing import Preprocessor
 
 
 class SearchModel(ABC):
@@ -16,7 +15,6 @@ class SearchModel(ABC):
         """
         Constructor
         :param index: index to search in
-        :param preprocessor: preprocessor to use - if needed
         """
         self.inverted_idx = index.inverted_idx
 
@@ -29,4 +27,3 @@ class SearchModel(ABC):
         :return: list of all documents matching the query
         """
         pass
-

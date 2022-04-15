@@ -1,76 +1,16 @@
 from typing import List
 
 from fastapi import APIRouter
-from pydantic.class_validators import Optional
-from pydantic.main import Model
 
-from src.index.index import add_index, IndexConfig, Index, delete_index, get_index
+from src.api.indices_dtos import DocumentDto
+from src.index.index import add_index, Index, delete_index, get_index
+from src.index.index import get_all_indices as _get_all_indices
 
-# Module for controlling indices
-from src.preprocessing.preprocessing import PreprocessorConfig, Preprocessor
-
+# API router to set endpoints for indexing
 router = APIRouter()
 
 
-class PreprocessorConfigDto(Model):
-    """
-    Preprocessor configuration DTO
-    """
-    lowercase: bool
-    removeAccentsBeforeStemming: bool
-    removePunctuation: bool
-    removeStopwords: bool
-    useStemmer: bool
-    lang: str
-    removeAccentsAfterStemming: bool
-
-    def to_domain_object(self):
-        """
-        Converts the DTO to a PreprocessorConfig object
-        :return: PreprocessorConfig object
-        """
-        return PreprocessorConfig(
-            lowercase=self.lowercase,
-            remove_accents_before_stemming=self.removeAccentsBeforeStemming,
-            remove_punctuation=self.removePunctuation,
-            remove_stopwords=self.removeStopwords,
-            use_stemmer=self.useStemmer,
-            lang=self.lang,
-            remove_accents_after_stemming=self.removeAccentsAfterStemming,
-        )
-
-
-class IndexConfigDto(Model):
-    """
-    Index configuration DTO
-    """
-    name: str
-    models: List[str]
-    preprocessorConfig: PreprocessorConfigDto
-
-    def to_domain_object(self):
-        """
-        Converts the DTO to an IndexConfig object
-        :return: IndexConfig
-        """
-        return IndexConfig(
-            name=self.name,
-            models=self.models,
-            preprocessor=Preprocessor(self.preprocessorConfig.to_domain_object()),
-        )
-
-
-class DocumentDto(Model):
-    """
-    Document DTO
-    """
-    docId: Optional[str]
-    text: str
-    # Additional properties to the document
-    additionalProperties: {}
-
-
-@router.post('/index/{name}')
+@router.post('/indices/{name}')
 def create_idx(name: str, index_config: IndexConfigDto):
     """
     Creates an index
@@ -85,7 +25,7 @@ def create_idx(name: str, index_config: IndexConfigDto):
         return {"success": False, "error": str(e)}
 
 
-@router.delete('/index/{name}')
+@router.delete('/indices/{name}')
 def delete_idx(name: str):
     """
     Deletes an index
@@ -99,7 +39,7 @@ def delete_idx(name: str):
         return {"success": False, "error": str(e)}
 
 
-@router.post('/index/{index_name}/documents')
+@router.post('/indices/{index_name}/documents')
 def add_document(index_name: str, document: DocumentDto):
     """
     Adds a document to an index
@@ -116,7 +56,7 @@ def add_document(index_name: str, document: DocumentDto):
         return {"success": False, "error": str(e)}
 
 
-@router.post('/index/{index_name}/documents/batch')
+@router.post('/indices/{index_name}/documents/batch')
 def add_documents(index_name: str, documents: List[DocumentDto]):
     """
     Adds a list of documents to an index
@@ -133,7 +73,7 @@ def add_documents(index_name: str, documents: List[DocumentDto]):
         return {"success": False, "error": str(e)}
 
 
-@router.delete('/index/{index_name}/documents/{doc_id}')
+@router.delete('/indices/{index_name}/documents/{doc_id}')
 def delete_document(index_name: str, doc_id: int):
     """
     Deletes a document from an index
@@ -149,7 +89,7 @@ def delete_document(index_name: str, doc_id: int):
         return {"success": False, "error": str(e)}
 
 
-@router.delete('/index/{index_name}/documents/batch')
+@router.delete('/indices/{index_name}/documents/batch')
 def delete_documents(index_name: str, doc_ids: List[int]):
     """
     Deletes a list of documents from an index
@@ -163,3 +103,12 @@ def delete_documents(index_name: str, doc_ids: List[int]):
         return {"success": True}
     except ValueError as e:
         return {"success": False, "error": str(e)}
+
+
+@router.get('/indices')
+def get_all_indices():
+    """
+    Returns all indices
+    :return: List of indices
+    """
+    return _get_all_indices()
