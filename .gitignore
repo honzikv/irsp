@@ -4,3 +4,4 @@ src/preprocessing/__pycache__
 src/index/__pycache__
 src/api/__pycache__
 frontend/yarn.lock
+__pycache__
