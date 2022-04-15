@@ -1,18 +1,24 @@
+from typing import List
+
+
 class Document:
     """
     Base interface to represent any document that can be indexed.
     Any document that can be indexed should implement this interface.
     """
 
-    def __init__(self, doc_id, tokens):
+    def __init__(self, doc_id: int, tokens: List[str], text: str, additional_properties: {}):
         """
         Initializes the document object
         :param doc_id: the document id
         :param tokens: tokens of the document obtained from preprocessing
+        :param text: text of the document
         """
         self.doc_id = doc_id
         self.tokens = tokens
+        self.text = text
         self._bow = None  # bag of words (dictionary of term: frequency in the document)
+        self.properties = additional_properties
 
     def __str__(self):
         return f'Document:\n\tid: {self.doc_id}\n\ttokens: {self.tokens}'
