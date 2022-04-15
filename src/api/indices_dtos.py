@@ -58,7 +58,7 @@ class DocumentDto(Model):
     """
     Document DTO
     """
-    docId: Optional[str]
+    docId: Optional[int]
     text: str
     # Additional properties to the document
     additionalProperties: dict

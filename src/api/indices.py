@@ -113,4 +113,4 @@ def get_all_indices():
     Returns all indices
     :return: List of indices
     """
-    return _get_all_indices()
+    return {"success": True, "message": _get_all_indices()}
