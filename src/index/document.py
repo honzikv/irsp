@@ -7,13 +7,15 @@ class Document:
     Any document that can be indexed should implement this interface.
     """
 
-    def __init__(self, doc_id: int, tokens: List[str], text: str, additional_properties: {}):
+    def __init__(self, doc_id: int, tokens: List[str], text: str, additional_properties: {} = None):
         """
         Initializes the document object
         :param doc_id: the document id
         :param tokens: tokens of the document obtained from preprocessing
         :param text: text of the document
         """
+        if additional_properties is None:
+            additional_properties = {}
         self.doc_id = doc_id
         self.tokens = tokens
         self.text = text

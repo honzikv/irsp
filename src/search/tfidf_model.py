@@ -70,12 +70,12 @@ class TfIdfModel(SearchModel):
         super().__init__(index)
         self.preprocessor = preprocessor
 
-    def search(self, query: str, top_k: int = 10) -> list:
+    def search(self, query: str, top_n: int = 10) -> list:
         """
         Search using tf-idf as a score
-        :param query:
-        :param top_k:
-        :return:
+        :param query: query as a string
+        :param top_n: number of results to return
+        :return: list of tuples (score, document)
         """
 
         # Preprocess the query and get all terms
@@ -83,7 +83,7 @@ class TfIdfModel(SearchModel):
         terms = set(tokens)
 
         # Get all documents that contain at least one of the terms
-        inverted_idx = self.index.inverted_index
+        inverted_idx = self.inverted_idx
 
         # List of all unique documents that contain at least one of the terms
         documents = {}
@@ -91,17 +91,18 @@ class TfIdfModel(SearchModel):
             if term not in inverted_idx:
                 continue
 
-            for document in inverted_idx[term].documents.values():
-                if document.document_id not in documents:
-                    documents[document.document_id] = document
+            for document_info in inverted_idx[term].documents.values():
+                document = document_info.document
+                if document not in documents:
+                    documents[document.doc_id] = document
 
         # Get vector representation for query
-        query_vector = tfidf_vectorize_query(inverted_idx, Document(-1, tokens), len(documents))
+        query_vector = tfidf_vectorize_query(inverted_idx, Document(-1, tokens, ''), len(documents))
 
         # Calculate the cosine similarity for each document
         results = []
-        for document in documents:
+        for doc_id, document in documents:
             doc_vec = tfidf_vectorize_document(inverted_idx, document)
-            results.append(cosine_similarity(query_vector, doc_vec))
+            results.append((cosine_similarity(query_vector, doc_vec), document))
 
         return results
