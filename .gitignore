@@ -1,0 +1,6 @@
+﻿.idea
+src/search/__pycache__
+src/preprocessing/__pycache__
+src/index/__pycache__
+src/api/__pycache__
+frontend/yarn.lock
