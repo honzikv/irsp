@@ -1,9 +1,8 @@
-from typing import Dict
+from typing import Dict, List, Tuple
 
 import numpy as np
 
 from src.index.document import Document
-from src.index.index import Index
 from src.index.term_info import TermInfo
 from src.preprocessing.preprocessing import Preprocessor
 from src.search.cosine_similarity import cosine_similarity
@@ -66,11 +65,11 @@ class TfIdfModel(SearchModel):
     TF-IDF model which uses cosine similarity for searching
     """
 
-    def __init__(self, index: Index, preprocessor: Preprocessor):
+    def __init__(self, index, preprocessor: Preprocessor):
         super().__init__(index)
         self.preprocessor = preprocessor
 
-    def search(self, query: str, top_n: int = 10) -> list:
+    def search(self, query: str, top_n: int = 10):
         """
         Search using tf-idf as a score
         :param query: query as a string

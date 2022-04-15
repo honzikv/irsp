@@ -1,8 +1,4 @@
 from abc import ABC, abstractmethod
-from typing import List
-
-from src.index.document import Document
-from src.index.index import Index
 
 
 class SearchModel(ABC):
@@ -11,7 +7,7 @@ class SearchModel(ABC):
     """
 
     @abstractmethod
-    def __init__(self, index: Index):
+    def __init__(self, index):
         """
         Constructor
         :param index: index to search in
@@ -19,7 +15,7 @@ class SearchModel(ABC):
         self.inverted_idx = index.inverted_idx
 
     @abstractmethod
-    def search(self, query: str, n_items=None) -> List[Document]:
+    def search(self, query: str, n_items=None):
         """
         Search for documents matching the query
         :param query: sought query

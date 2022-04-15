@@ -1,8 +1,8 @@
 from pydantic.class_validators import Optional, List
-from pydantic.main import Model
+from pydantic.main import BaseModel as Model
 
 from src.index.document import Document
-from src.index.index import IndexConfig
+from src.index.index_config import IndexConfig
 from src.preprocessing.preprocessing import PreprocessorConfig, Preprocessor
 
 
@@ -61,7 +61,7 @@ class DocumentDto(Model):
     docId: Optional[str]
     text: str
     # Additional properties to the document
-    additionalProperties: {}
+    additionalProperties: dict
 
     @staticmethod
     def from_domain_object(document: Document):

@@ -2,15 +2,17 @@ from typing import List
 
 from fastapi import APIRouter
 
-from src.api.indices_dtos import DocumentDto
+from src.api.indices_dtos import DocumentDto, IndexConfigDto
 from src.index.index import add_index, Index, delete_index, get_index
 from src.index.index import get_all_indices as _get_all_indices
 
 # API router to set endpoints for indexing
-router = APIRouter()
+indices_router = APIRouter(
+    prefix='/indices'
+)
 
 
-@router.post('/indices/{name}')
+@indices_router.post('/{name}')
 def create_idx(name: str, index_config: IndexConfigDto):
     """
     Creates an index
@@ -25,7 +27,7 @@ def create_idx(name: str, index_config: IndexConfigDto):
         return {"success": False, "error": str(e)}
 
 
-@router.delete('/indices/{name}')
+@indices_router.delete('/{name}')
 def delete_idx(name: str):
     """
     Deletes an index
@@ -39,7 +41,7 @@ def delete_idx(name: str):
         return {"success": False, "error": str(e)}
 
 
-@router.post('/indices/{index_name}/documents')
+@indices_router.post('/{index_name}/documents')
 def add_document(index_name: str, document: DocumentDto):
     """
     Adds a document to an index
@@ -56,7 +58,7 @@ def add_document(index_name: str, document: DocumentDto):
         return {"success": False, "error": str(e)}
 
 
-@router.post('/indices/{index_name}/documents/batch')
+@indices_router.post('/{index_name}/documents/batch')
 def add_documents(index_name: str, documents: List[DocumentDto]):
     """
     Adds a list of documents to an index
@@ -73,7 +75,7 @@ def add_documents(index_name: str, documents: List[DocumentDto]):
         return {"success": False, "error": str(e)}
 
 
-@router.delete('/indices/{index_name}/documents/{doc_id}')
+@indices_router.delete('/{index_name}/documents/{doc_id}')
 def delete_document(index_name: str, doc_id: int):
     """
     Deletes a document from an index
@@ -89,7 +91,7 @@ def delete_document(index_name: str, doc_id: int):
         return {"success": False, "error": str(e)}
 
 
-@router.delete('/indices/{index_name}/documents/batch')
+@indices_router.delete('/{index_name}/documents/batch')
 def delete_documents(index_name: str, doc_ids: List[int]):
     """
     Deletes a list of documents from an index
@@ -105,7 +107,7 @@ def delete_documents(index_name: str, doc_ids: List[int]):
         return {"success": False, "error": str(e)}
 
 
-@router.get('/indices')
+@indices_router.get('/')
 def get_all_indices():
     """
     Returns all indices

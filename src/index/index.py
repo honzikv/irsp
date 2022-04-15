@@ -1,43 +1,15 @@
 # dictionary of all indices.py
 from typing import Iterable, List, Dict
 
-from src.api.indices import DocumentDto
-from src.api.indices_dtos import IndexDto
+from src.api.indices_dtos import DocumentDto, IndexDto
 from src.index.document import Document
+from src.index.index_config import IndexConfig
 from src.index.term_info import TermInfo
-from src.preprocessing.preprocessing import Preprocessor
 from src.search.search_model import SearchModel
 from src.search.tfidf_model import calculate_tfidf
 
 # All indexes
 _indices = {}
-
-# Default search
-default_models = ['tf_idf', 'boolean']
-
-# Additional search that can be added to the default search
-additional_models = ['transformers', 'doc2vec']
-
-
-class IndexConfig:
-    """
-    Configuration for the index object
-    """
-
-    def __init__(self, name, models, preprocessor: Preprocessor):
-        """
-        Constructor for the IndexConfig object
-        :param name: name of the index
-        :param models: list of search models to use
-        :param preprocessor: preprocessor to use
-        """
-        for model in models:
-            if model not in additional_models:
-                raise ValueError(f'{model} is not a valid model')
-
-        self.name = name
-        self.models = models + default_models
-        self.preprocessor = preprocessor
 
 
 class Index:
@@ -203,15 +175,14 @@ class Index:
         Converts this to IndexDto
         :return: instance of IndexDto
         """
+        n_example_docs = n_example_docs if len(self.documents) > n_example_docs else len(self.documents)
+        example_docs = [DocumentDto.from_domain_object(doc) for doc in list(self.documents.values())[:n_example_docs]]
         return IndexDto(
             name=self.config.name,
-            models=self.models.keys(),
+            models=list(self.models.keys()),
             nTerms=len(self.inverted_idx),
             nDocs=len(self.documents),
-            exampleDocuments=[DocumentDto.from_domain_object(doc) for doc in
-                              # Get first n_example_docs documents or all documents if the collection is smaller
-                              self.documents.values()[
-                              :n_example_docs if len(self.documents) > n_example_docs else len(self.documents)]]
+            exampleDocuments=example_docs
         )
 
 
@@ -249,9 +220,10 @@ def delete_index(name: str):
     del _indices[name]
 
 
-def get_all_indices() -> List[Index]:
+def get_all_indices() -> List[IndexDto]:
     """
     Gets all indices
     :return: List of indices
     """
     return list(map(lambda x: x.to_dto(), _indices.values()))
+
