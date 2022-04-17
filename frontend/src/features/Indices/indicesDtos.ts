@@ -10,7 +10,6 @@ export interface PreprocessorConfigDto {
 
 export interface IndexConfigDto {
     name: string
-    models: string[]
     preprocessorConfig: PreprocessorConfigDto
 }
 

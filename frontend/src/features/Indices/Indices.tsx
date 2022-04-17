@@ -1,9 +1,17 @@
-import { Button, Container, Divider, Grid, Typography } from '@mui/material'
+import {
+    Button,
+    Container,
+    Divider,
+    Grid,
+    Stack,
+    Typography,
+} from '@mui/material'
 import { Fragment, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from '../../redux/store'
 import CreateIndexDialog from './CreateIndexDialog'
 import IndexDetail from './IndexDetail'
+import { IndexDto } from './indicesDtos'
 import IndicesOverview from './IndicesOverview'
 import { fetchIndices } from './indicesSlice'
 
@@ -35,7 +43,7 @@ const Indices = () => {
                 Indices
             </Typography>
 
-            <CreateIndexDialog maxWidth="sm" />
+            <CreateIndexDialog maxWidth="lg" />
             <Divider sx={{ my: 2 }} />
             {indices.length === 0 ? (
                 <Typography align="center" color="text.secondary">
@@ -43,19 +51,23 @@ const Indices = () => {
                 </Typography>
             ) : null}
             <Grid container>
-                <Grid item xs={12} md={6}>
-                    {indices.map((index, idx) => (
-                        <IndexDetail
-                            key={idx}
-                            name={index.name}
-                            nTerms={index.nTerms}
-                            nDocs={index.nDocs}
-                            models={index.models}
-                            exampleDocuments={index.exampleDocuments}
-                        />
-                    ))}
+                <Grid item xs={12} md={8}>
+                    <Stack direction="column" spacing={2}>
+                        {[...indices]
+                            .sort((a, b) => a.name.localeCompare(b.name))
+                            .map((index, idx) => (
+                                <IndexDetail
+                                    key={idx}
+                                    name={index.name}
+                                    nTerms={index.nTerms}
+                                    nDocs={index.nDocs}
+                                    models={index.models}
+                                    exampleDocuments={index.exampleDocuments}
+                                />
+                            ))}
+                    </Stack>
                 </Grid>
-                <Grid item xs={12} md={6}>
+                <Grid item xs={12} md={4}>
                     {indices.length > 0 ? (
                         <IndicesOverview
                             totalDocuments={totalDocuments}

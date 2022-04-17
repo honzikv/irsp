@@ -10,6 +10,7 @@ from src.search.tfidf_model import calculate_tfidf
 
 # All indexes
 _indices = {}
+models = ['tf_idf', 'boolean', 'transformers', 'doc2vec']
 
 
 class Index:
@@ -226,4 +227,3 @@ def get_all_indices() -> List[IndexDto]:
     :return: List of indices
     """
     return list(map(lambda x: x.to_dto(), _indices.values()))
-

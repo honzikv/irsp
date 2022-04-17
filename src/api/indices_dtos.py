@@ -39,7 +39,6 @@ class IndexConfigDto(Model):
     Index configuration DTO
     """
     name: str
-    models: List[str]
     preprocessorConfig: PreprocessorConfigDto
 
     def to_domain_object(self):
@@ -49,7 +48,6 @@ class IndexConfigDto(Model):
         """
         return IndexConfig(
             name=self.name,
-            models=self.models,
             preprocessor=Preprocessor(self.preprocessorConfig.to_domain_object()),
         )
 

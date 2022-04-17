@@ -4,9 +4,11 @@ import {
     Button,
     Checkbox,
     DialogContent,
+    Divider,
     FormControl,
     FormControlLabel,
     FormGroup,
+    IconButton,
     InputLabel,
     MenuItem,
     Stack,
@@ -19,21 +21,13 @@ import Select, { SelectChangeEvent } from '@mui/material/Select'
 import axiosInstance from '../../conf/axios'
 import { useDispatch } from 'react-redux'
 import { showNotification } from '../Notification/notificationSlice'
+import { fetchIndices } from './indicesSlice'
+import DeleteIcon from '@mui/icons-material/Delete'
+import AttachmentIcon from '@mui/icons-material/Attachment'
+import AddIcon from '@mui/icons-material/Add';
 
 export interface CreateIndexDialogProps {
     maxWidth?: DialogProps['maxWidth']
-}
-
-interface CreateIndexFields {
-    name: string
-    lowercase: boolean
-    removeAccentsBeforeStemming: boolean
-    removePunctuation: boolean
-    removeStopwords: boolean
-    useStemmer: boolean
-    lang: string
-    removeAccentsAfterStemming: boolean
-    file?: File
 }
 
 const CreateIndexDialog: FunctionComponent<CreateIndexDialogProps> = ({
@@ -42,6 +36,7 @@ const CreateIndexDialog: FunctionComponent<CreateIndexDialogProps> = ({
     const availableLanguages = ['en', 'cs']
     const [open, setOpen] = useState(false)
     const [submitButtonEnabled, setSubmitButtonEnabled] = useState(true)
+    const [fileName, setFileName] = useState<string | undefined>(undefined)
 
     const dispatch = useDispatch()
 
@@ -78,7 +73,7 @@ const CreateIndexDialog: FunctionComponent<CreateIndexDialogProps> = ({
             file: undefined,
         },
         validationSchema,
-        onSubmit: async (values) => {
+        onSubmit: async (values, { resetForm }) => {
             setSubmitButtonEnabled(false)
             const jsonBody = {
                 name: values.name,
@@ -90,18 +85,19 @@ const CreateIndexDialog: FunctionComponent<CreateIndexDialogProps> = ({
                 lang: values.lang,
                 removeAccentsAfterStemming: values.removeAccentsAfterStemming,
             }
-            const blob = new Blob([JSON.stringify(jsonBody)], {
-                type: 'application/json',
-            })
+            // const blob = new Blob([JSON.stringify(jsonBody)], {
+            //     type: 'application/json',
+            // })
             const formData = new FormData()
-            formData.append('json', blob)
+            formData.append('idxConfig', JSON.stringify(jsonBody))
             if (values.file) {
-                formData.append('file', values.file as any)
+                formData.append('dataFile', values.file as any)
             }
 
+            let wasSuccessful = false
             try {
                 const { data } = await axiosInstance.post(
-                    '/indices',
+                    `/indices/${values.name}`,
                     formData,
                     {
                         headers: {
@@ -110,7 +106,16 @@ const CreateIndexDialog: FunctionComponent<CreateIndexDialogProps> = ({
                     }
                 )
 
-                if (!data.success) {
+                if (data.success) {
+                    dispatch(
+                        showNotification({
+                            message: data.message,
+                            severity: 'success',
+                            autohideSecs: 5,
+                        })
+                    )
+                    wasSuccessful = true
+                } else {
                     dispatch(
                         showNotification({
                             message: data.message,
@@ -129,6 +134,14 @@ const CreateIndexDialog: FunctionComponent<CreateIndexDialogProps> = ({
                     })
                 )
             }
+
+            // If the request was successful close the dialog, refresh indices and clear values
+            if (wasSuccessful) {
+                dispatch(fetchIndices())
+                hideDialog()
+                resetForm()
+            }
+
             setSubmitButtonEnabled(true)
         },
     })
@@ -138,7 +151,23 @@ const CreateIndexDialog: FunctionComponent<CreateIndexDialogProps> = ({
     }
 
     const onFileUpload = (event: any) => {
-        formik.setFieldValue('file', event.currentTarget.files[0])
+        const file = event.currentTarget.files[0]
+        if (file) {
+            setFileName(file.name as string)
+            formik.setFieldValue('file', file)
+        }
+    }
+
+    // Method called on closing the dialog
+    const onClose = () => {
+        hideDialog()
+        setFileName(undefined)
+        formik.resetForm()
+    }
+
+    const clearSelectedFile = () => {
+        setFileName(undefined)
+        formik.setFieldValue('file', undefined)
     }
 
     return (
@@ -156,8 +185,8 @@ const CreateIndexDialog: FunctionComponent<CreateIndexDialogProps> = ({
             <Dialog
                 open={open}
                 fullWidth={true}
-                onClose={hideDialog}
-                maxWidth={maxWidth}
+                onClose={onClose}
+                maxWidth={maxWidth || 'lg'}
             >
                 <Typography sx={{ ml: 2, mt: 2 }} variant="h5" fontWeight="600">
                     Create New Index
@@ -284,21 +313,54 @@ const CreateIndexDialog: FunctionComponent<CreateIndexDialogProps> = ({
                                 label="Remove accents after stemming/lemmatization"
                             />
                         </FormGroup>
-                        <Stack sx={{ my: 2 }}>
-                            <Button
-                                variant="contained"
-                                color="secondary"
-                                component="label"
-                            >
-                                Attach Documents
-                                <input
-                                    id="file"
-                                    name="file"
-                                    type="file"
-                                    hidden
-                                    onChange={onFileUpload}
-                                />
-                            </Button>
+                        <Divider sx={{ mt: 1 }} />
+                        <Stack sx={{ my: 2 }} direction="column">
+                            {fileName ? (
+                                <Fragment>
+                                    <Typography
+                                        sx={{ mr: 2 }}
+                                        color="text.secondary"
+                                        align="right"
+                                    >
+                                        Selected File: {fileName}
+                                    </Typography>
+                                    <Stack
+                                        direction="row"
+                                        justifyContent="flex-end"
+                                        alignItems="center"
+                                    >
+                                        <Button
+                                            sx={{ mb: 2, mt: 1 }}
+                                            variant="outlined"
+                                            size="small"
+                                            endIcon={<DeleteIcon />}
+                                            onClick={clearSelectedFile}
+                                        >
+                                            Remove Selection
+                                        </Button>
+                                    </Stack>
+                                </Fragment>
+                            ) : null}
+                            <Stack></Stack>
+                            {!fileName ? (
+                                <Button
+                                    variant="outlined"
+                                    color="secondary"
+                                    component="label"
+                                    // size="small"
+                                    startIcon={<AttachmentIcon />}
+                                >
+                                    Attach JSON Data
+                                    <input
+                                        id="file"
+                                        name="file"
+                                        type="file"
+                                        accept="application/json"
+                                        hidden
+                                        onChange={onFileUpload}
+                                    />
+                                </Button>
+                            ) : null}
                         </Stack>
                         <Stack
                             direction="row"
@@ -309,8 +371,9 @@ const CreateIndexDialog: FunctionComponent<CreateIndexDialogProps> = ({
                                 type="submit"
                                 variant="contained"
                                 disabled={!submitButtonEnabled}
+                                startIcon={<AddIcon />}
                             >
-                                Create
+                                Create Index
                             </Button>
                         </Stack>
                     </form>

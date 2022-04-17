@@ -21,6 +21,7 @@ const IndexDetail: FunctionComponent<IndexDto> = ({ name, nDocs, nTerms, example
                 alignItems="center"
                 spacing={1}
             >
+                <Button variant="contained" color="error">Delete</Button>
                 <Button variant="contained" color="secondary">Modify</Button>
                 <Button variant="contained">Search</Button>
             </Stack>
