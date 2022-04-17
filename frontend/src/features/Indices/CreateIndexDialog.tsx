@@ -1,10 +1,9 @@
-import { Fragment, FunctionComponent, useState } from 'react'
+import { ChangeEvent, Fragment, FunctionComponent, useState } from 'react'
 import Dialog, { DialogProps } from '@mui/material/Dialog'
 import {
     Button,
     Checkbox,
     DialogContent,
-    DialogTitle,
     FormControl,
     FormControlLabel,
     FormGroup,
@@ -14,10 +13,12 @@ import {
     TextField,
     Typography,
 } from '@mui/material'
-import { Form, useFormik } from 'formik'
+import { useFormik } from 'formik'
 import * as yup from 'yup'
-import { SchemaOf } from 'yup'
 import Select, { SelectChangeEvent } from '@mui/material/Select'
+import axiosInstance from '../../conf/axios'
+import { useDispatch } from 'react-redux'
+import { showNotification } from '../Notification/notificationSlice'
 
 export interface CreateIndexDialogProps {
     maxWidth?: DialogProps['maxWidth']
@@ -32,6 +33,7 @@ interface CreateIndexFields {
     useStemmer: boolean
     lang: string
     removeAccentsAfterStemming: boolean
+    file?: File
 }
 
 const CreateIndexDialog: FunctionComponent<CreateIndexDialogProps> = ({
@@ -39,6 +41,9 @@ const CreateIndexDialog: FunctionComponent<CreateIndexDialogProps> = ({
 }) => {
     const availableLanguages = ['en', 'cs']
     const [open, setOpen] = useState(false)
+    const [submitButtonEnabled, setSubmitButtonEnabled] = useState(true)
+
+    const dispatch = useDispatch()
 
     const hideDialog = () => {
         setOpen(false)
@@ -57,6 +62,7 @@ const CreateIndexDialog: FunctionComponent<CreateIndexDialogProps> = ({
         useStemmer: yup.boolean(),
         lang: yup.string().required('Language is required'),
         removeAccentsAfterStemming: yup.boolean(),
+        file: yup.mixed().notRequired(),
     })
 
     const formik = useFormik({
@@ -69,22 +75,84 @@ const CreateIndexDialog: FunctionComponent<CreateIndexDialogProps> = ({
             useStemmer: true,
             lang: 'en',
             removeAccentsAfterStemming: true,
+            file: undefined,
         },
         validationSchema,
-        onSubmit: (values) => {
-            console.log(values)
+        onSubmit: async (values) => {
+            setSubmitButtonEnabled(false)
+            const jsonBody = {
+                name: values.name,
+                lowercase: values.lowercase,
+                removeAccentsBeforeStemming: values.removeAccentsBeforeStemming,
+                removePunctuation: values.removePunctuation,
+                removeStopwords: values.removeStopwords,
+                useStemmer: values.useStemmer,
+                lang: values.lang,
+                removeAccentsAfterStemming: values.removeAccentsAfterStemming,
+            }
+            const blob = new Blob([JSON.stringify(jsonBody)], {
+                type: 'application/json',
+            })
+            const formData = new FormData()
+            formData.append('json', blob)
+            if (values.file) {
+                formData.append('file', values.file as any)
+            }
+
+            try {
+                const { data } = await axiosInstance.post(
+                    '/indices',
+                    formData,
+                    {
+                        headers: {
+                            'Content-Type': 'multipart/form-data',
+                        },
+                    }
+                )
+
+                if (!data.success) {
+                    dispatch(
+                        showNotification({
+                            message: data.message,
+                            severity: 'error',
+                            autohideSecs: 5,
+                        })
+                    )
+                }
+            } catch (err: any) {
+                dispatch(
+                    showNotification({
+                        message:
+                            'Server is currently unavailable, try again later 😥.',
+                        severity: 'error',
+                        autohideSecs: 5,
+                    })
+                )
+            }
+            setSubmitButtonEnabled(true)
         },
     })
 
-    const changeLanguage = (event: SelectChangeEvent) => {
+    const onLanguageChange = (event: SelectChangeEvent) => {
         formik.setFieldValue('lang', event.target.value)
+    }
+
+    const onFileUpload = (event: any) => {
+        formik.setFieldValue('file', event.currentTarget.files[0])
     }
 
     return (
         <Fragment>
-            <Button variant="outlined" color="primary" onClick={showDialog}>
-                Create new Index
-            </Button>
+            <Stack
+                direction="row"
+                justifyContent="flex-end"
+                alignItems="center"
+            >
+                <Button variant="outlined" color="primary" onClick={showDialog}>
+                    Create new Index
+                </Button>
+            </Stack>
+
             <Dialog
                 open={open}
                 fullWidth={true}
@@ -121,7 +189,7 @@ const CreateIndexDialog: FunctionComponent<CreateIndexDialogProps> = ({
                                 id="lang"
                                 value={formik.values.lang}
                                 label="Language"
-                                onChange={changeLanguage}
+                                onChange={onLanguageChange}
                             >
                                 {availableLanguages.map((lang) => (
                                     <MenuItem key={lang} value={lang}>
@@ -216,12 +284,32 @@ const CreateIndexDialog: FunctionComponent<CreateIndexDialogProps> = ({
                                 label="Remove accents after stemming/lemmatization"
                             />
                         </FormGroup>
+                        <Stack sx={{ my: 2 }}>
+                            <Button
+                                variant="contained"
+                                color="secondary"
+                                component="label"
+                            >
+                                Attach Documents
+                                <input
+                                    id="file"
+                                    name="file"
+                                    type="file"
+                                    hidden
+                                    onChange={onFileUpload}
+                                />
+                            </Button>
+                        </Stack>
                         <Stack
                             direction="row"
                             justifyContent="flex-end"
                             alignItems="center"
                         >
-                            <Button type="submit" variant="contained">
+                            <Button
+                                type="submit"
+                                variant="contained"
+                                disabled={!submitButtonEnabled}
+                            >
                                 Create
                             </Button>
                         </Stack>

@@ -3,9 +3,10 @@ import thunk from 'redux-thunk'
 import themeReducer from '../features/theme/themeSlice'
 import indicesReducer from '../features/Indices/indicesSlice'
 import { persistStore } from 'redux-persist'
+import notificationReducer from '../features/Notification/notificationSlice'
 
 const store = createStore(
-    combineReducers({ indices: indicesReducer, theme: themeReducer }),
+    combineReducers({ indices: indicesReducer, theme: themeReducer, notification: notificationReducer }),
     applyMiddleware(thunk)
 )
 

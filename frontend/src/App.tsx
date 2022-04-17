@@ -1,5 +1,5 @@
 import './App.css'
-import { Grid, PaletteMode, Paper } from '@mui/material'
+import { Grid, PaletteMode, Paper, Snackbar } from '@mui/material'
 import { createTheme, Theme, ThemeProvider } from '@mui/material/styles'
 import { Route, Routes } from 'react-router-dom'
 import Home from './features/Home/Home'
@@ -8,13 +8,17 @@ import Navigation from './features/Navigation/Navigation'
 import Header from './features/Navigation/Header'
 import { useSelector } from 'react-redux'
 import { RootState } from './redux/store'
-import { Fragment, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
+import Notification from './features/Notification/Notification'
 
 const App = () => {
     const buildTheme = (paletteMode: PaletteMode) =>
         createTheme({
             palette: {
                 mode: paletteMode,
+            },
+            shape: {
+                borderRadius: 16
             },
             typography: {
                 fontFamily: [
@@ -46,6 +50,7 @@ const App = () => {
     return (
         <ThemeProvider theme={theme}>
             <Paper style={{ minHeight: '100vh', borderRadius: 0 }}>
+                <Notification />
                 <Header />
                 <Grid container sx={{ mt: 4 }}>
                     <Grid item xs={2}>
