@@ -10,7 +10,7 @@ import { Fragment, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from '../../redux/store'
 import CreateIndexDialog from './CreateIndexDialog'
-import IndexDetail from './IndexDetail'
+import IndexCardDetail from './IndexCardDetail'
 import { IndexDto } from './indicesDtos'
 import IndicesOverview from './IndicesOverview'
 import { fetchIndices } from './indicesSlice'
@@ -56,7 +56,7 @@ const Indices = () => {
                         {[...indices]
                             .sort((a, b) => a.name.localeCompare(b.name))
                             .map((index, idx) => (
-                                <IndexDetail
+                                <IndexCardDetail
                                     key={idx}
                                     name={index.name}
                                     nTerms={index.nTerms}

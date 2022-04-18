@@ -47,7 +47,7 @@ def delete_idx(name: str):
     """
     try:
         delete_index(name)
-        return {"success": True}
+        return {"success": True, "message": f"Index {name} was successfully deleted."}
     except ValueError as e:
         return {"success": False, "message": str(e)}
 

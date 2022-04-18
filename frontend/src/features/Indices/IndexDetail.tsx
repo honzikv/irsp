@@ -1,32 +1,52 @@
-import { Button, Card, CardContent, Stack, Typography } from '@mui/material'
-import { FunctionComponent } from 'react'
-import { IndexDto } from './indicesDtos'
+import { Divider, IconButton, InputBase, Paper } from '@mui/material'
+import { useFormik } from 'formik'
+import { Fragment } from 'react'
+import { useDispatch } from 'react-redux'
+import { useParams } from 'react-router-dom'
+import SearchIcon from '@mui/icons-material/Search'
 
+// Detail component which shows the search bar, results and some configuration
+const IndexDetail = () => {
+    const dispatch = useDispatch()
+    const { name } = useParams()
 
-const IndexDetail: FunctionComponent<IndexDto> = ({ name, nDocs, nTerms, exampleDocuments }) => (
-    <Card variant="outlined">
-        <CardContent>
-            <Typography variant="h5" fontWeight="bold">
-                {name}
-            </Typography>
-            <Typography color="text.secondary">
-                {nTerms} terms
-            </Typography>
-            <Typography color="text.secondary">
-                {nDocs} documents
-            </Typography>
-            <Stack
-                direction="row"
-                justifyContent="flex-end"
-                alignItems="center"
-                spacing={1}
-            >
-                <Button variant="contained" color="error">Delete</Button>
-                <Button variant="contained" color="secondary">Modify</Button>
-                <Button variant="contained">Search</Button>
-            </Stack>
-        </CardContent>
-    </Card>
-)
+    const initialValues = {
+        query: '',
+    }
+
+    const formik = useFormik({
+        initialValues,
+        onSubmit: (values) => {},
+    })
+
+    return (
+        <Fragment>
+            <form onSubmit={formik.handleSubmit}>
+                <Paper
+                    component="form"
+                    sx={{
+                        p: '2px 4px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        width: 400,
+                    }}
+                >
+                    <InputBase
+                        sx={{ ml: 1, flex: 1 }}
+                        placeholder="Search"
+                        inputProps={{ 'aria-label': 'search' }}
+                    />
+                    <IconButton
+                        type="submit"
+                        sx={{ p: '10px' }}
+                        aria-label="search"
+                    >
+                        <SearchIcon />
+                    </IconButton>
+                </Paper>
+            </form>
+        </Fragment>
+    )
+}
 
 export default IndexDetail

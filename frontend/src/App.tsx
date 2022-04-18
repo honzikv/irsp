@@ -10,6 +10,7 @@ import { useSelector } from 'react-redux'
 import { RootState } from './redux/store'
 import { useEffect, useState } from 'react'
 import Notification from './features/Notification/Notification'
+import IndexDetail from './features/Indices/IndexDetail'
 
 const App = () => {
     const buildTheme = (paletteMode: PaletteMode) =>
@@ -60,6 +61,7 @@ const App = () => {
                         <Routes>
                             <Route path="/" element={<Home />} />
                             <Route path="/indices" element={<Indices />} />
+                            <Route path="/indices/:name" element={<IndexDetail />} />
                         </Routes>
                     </Grid>
                 </Grid>
