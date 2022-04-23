@@ -134,13 +134,14 @@ const CreateIndexDialog: FunctionComponent<CreateIndexDialogProps> = ({
                 )
             }
 
-            // If the request was successful close the dialog, refresh indices and clear values
+            // If the request was successful close the dialogclear values
             if (wasSuccessful) {
-                dispatch(fetchIndices())
                 hideDialog()
                 resetForm()
             }
 
+            // Always fetch new indices
+            dispatch(fetchIndices())
             setSubmitButtonEnabled(true)
         },
     })

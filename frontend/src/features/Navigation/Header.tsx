@@ -26,7 +26,7 @@ const Header = () => {
                         // component="div"
                         sx={{ flexGrow: 1 }}
                     >
-                        IR Semestral Project
+                        IR Search App
                     </Typography>
                     {colorThemeMode === 'dark' ? (
                         <IconButton onClick={onToggleTheme}>

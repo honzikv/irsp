@@ -6,11 +6,8 @@ from nltk.corpus import stopwords
 from src.preprocessing.czech_lemmatizer import CzechLemmatizer
 from src.preprocessing.czech_stemmer import CzechStemmer
 
-# Download wordnet and omw-1.4 for lemmatization
-nltk.download('wordnet')
-nltk.download('omw-1.4')
-
 supported_langs = ['en', 'cs']
+lang_full_mapping = {'en': 'english', 'cs': 'czech'}
 
 # Supported stemmers
 stemmers = {
@@ -51,6 +48,7 @@ class PreprocessorConfig:
         self.remove_stopwords = remove_stopwords
         self.use_stemmer = use_stemmer
         self.lang = lang
+        self.lang_full = lang_full_mapping[lang]
 
         if lang not in supported_langs:
             raise ValueError('Language not supported')
@@ -83,19 +81,24 @@ class Preprocessor:
             text = text.translate(str.maketrans('', '', '!"#$%&\'()*+,./:;<=>?@[\\]^_`{|}~'))
 
         # tokenize
-        text = word_tokenize(text, language=self.config.lang)
+        text = word_tokenize(text, language=self.config.lang_full)
 
         # remove stopwords
         if self.config.remove_stopwords:
             text = self._remove_stopwords(text)
 
         # use stemmer or lemmatizer
-        text = self.stemmer.stem(text) if self.config.use_stemmer else self.lemmatizer.lemmatize(text)
+        tokens = []
+        for token in text:
+            if self.config.use_stemmer:
+                tokens.append(self.stemmer.stem(token))
+            else:
+                tokens.append(self.lemmatizer.lemmatize(token))
 
         if self.config.remove_accents_after_stemming:
-            text = self._remove_accents(text)
+            return [self._remove_accents(token) for token in tokens]
 
-        return text
+        return tokens
 
     @staticmethod
     def _remove_accents(text: str) -> str:
@@ -114,4 +117,4 @@ class Preprocessor:
         :param text: text to be processed
         :return: text without stopwords
         """
-        return [word for word in text if word not in stopwords.words(self.config.lang)]
+        return [word for word in text if word not in stopwords.words(self.config.lang_full)]

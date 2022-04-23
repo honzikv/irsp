@@ -1,4 +1,12 @@
-import { Divider, IconButton, InputBase, Paper } from '@mui/material'
+import {
+    Divider,
+    Grid,
+    IconButton,
+    InputBase,
+    Paper,
+    Stack,
+    Typography,
+} from '@mui/material'
 import { useFormik } from 'formik'
 import { Fragment } from 'react'
 import { useDispatch } from 'react-redux'
@@ -21,30 +29,38 @@ const IndexDetail = () => {
 
     return (
         <Fragment>
-            <form onSubmit={formik.handleSubmit}>
-                <Paper
-                    component="form"
-                    sx={{
-                        p: '2px 4px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        width: 400,
-                    }}
-                >
-                    <InputBase
-                        sx={{ ml: 1, flex: 1 }}
-                        placeholder="Search"
-                        inputProps={{ 'aria-label': 'search' }}
-                    />
-                    <IconButton
-                        type="submit"
-                        sx={{ p: '10px' }}
-                        aria-label="search"
+            
+
+            <Stack sx={{ml: 1}} alignItems="Center">
+            <Typography sx={{ mt: 1, mb: 2 }} variant="h3" fontWeight="bold">
+                {name}
+            </Typography>
+                <form onSubmit={formik.handleSubmit}>
+                    <Paper
+                        component="form"
+                        variant="outlined"
+                        sx={{
+                            p: '2px 4px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            width: 400,
+                        }}
                     >
-                        <SearchIcon />
-                    </IconButton>
-                </Paper>
-            </form>
+                        <InputBase
+                            sx={{ ml: 1, flex: 1 }}
+                            placeholder="Search Index"
+                            inputProps={{ 'aria-label': 'search' }}
+                        />
+                        <IconButton
+                            type="submit"
+                            sx={{ p: '10px' }}
+                            aria-label="search"
+                        >
+                            <SearchIcon />
+                        </IconButton>
+                    </Paper>
+                </form>
+            </Stack>
         </Fragment>
     )
 }

@@ -54,16 +54,17 @@ const App = () => {
                 <Notification />
                 <Header />
                 <Grid container sx={{ mt: 4 }}>
-                    <Grid item xs={2}>
+                    <Grid item xs={4} md={2}>
                         <Navigation />
                     </Grid>
-                    <Grid item xs={10}>
+                    <Grid item xs={8} md={8}>
                         <Routes>
                             <Route path="/" element={<Home />} />
                             <Route path="/indices" element={<Indices />} />
                             <Route path="/indices/:name" element={<IndexDetail />} />
                         </Routes>
                     </Grid>
+                    <Grid item xs={0} md={2} />
                 </Grid>
             </Paper>
         </ThemeProvider>

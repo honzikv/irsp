@@ -74,7 +74,7 @@ const IndexCardDetail: FunctionComponent<IndexDto> = ({
                             'Are you sure you want to delete this index? This action is irreversible and all indexed documents will be lost.'
                         }
                     />
-                    <Button variant="contained" color="secondary">
+                    <Button variant="contained" color="secondary" component={RouterLink} to={`/indices/${name}`}>
                         Modify
                     </Button>
                     <Button component={RouterLink} variant="contained" to={`/indices/${name}`}>Search</Button>

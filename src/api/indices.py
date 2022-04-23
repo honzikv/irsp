@@ -32,11 +32,15 @@ async def create_idx(name: str, idxConfig: str = Form(...), dataFile: Optional[U
         add_index(name, Index(index_config_dto.to_domain_object(), []))
 
         if dataFile:
+            index = get_index(name)
             logger.info("Indexing data file")
             try:
-                documents = await parse_json_documents()
-            except:
-                return {"success": True, "message": "Error indexing data file"}
+                documents = index.add_json_to_index(dataFile)
+                return {"success": True,
+                        "message": f"Index {name} was successfully created and indexed {len(documents)} documents.",
+                        "documents": documents}
+            except ValueError as e:
+                return {"success": False, "message": str(e)}
 
         return {"success": True, "message": f"Index {name} was successfully created."}
     except ValueError as e:

@@ -30,11 +30,20 @@ class Index:
         self.next_doc_id = 0  # next document id to be used
 
     def get_next_doc_id(self):
+        """
+        Returns next document id to be used
+        :return: int
+        """
         current_id = self.next_doc_id
         self.next_doc_id += 1
         return current_id
 
     def _recalculate_terms(self, terms):
+        """
+        Recalculates passed terms in the index
+        :param terms: Iterable of TermInfo objects
+        :return: None
+        """
         n_docs = len(self.documents)
         # Recalculate all terms that were changed
         for term in terms:
@@ -46,7 +55,6 @@ class Index:
         :param batch: Iterable of documents
         :return: None
         """
-
         # Create a set of all terms to recalculate so we do not recalculate the same term multiple times
         terms_to_recalculate = set()
         for document in batch:
@@ -190,7 +198,7 @@ class Index:
         )
 
     def _parse_document_from_dict(self, doc_dict: dict) -> Document:
-        if not doc_dict['text']:
+        if 'text' not in doc_dict:
             raise ValueError('Document text cannot be empty')
 
         # Map to DocumentDto and let the index preprocess the text
@@ -220,7 +228,10 @@ class Index:
                 # Or something random so throw an error
                 raise ValueError()
         except ValueError as e:
-            raise ValueError('Invalid JSON file received. Make sure the file is valid JSON with array of documents.')
+            raise ValueError(
+                'Invalid JSON file received. Make sure the file is a valid JSON '
+                'array / object containing only Document(s).'
+            )
 
 
 def get_index(name: str) -> Index:
