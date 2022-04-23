@@ -4,10 +4,11 @@ import { IndexDto } from './indicesDtos'
 
 export interface IndicesState {
     indices: IndexDto[] // list of all obtained indices
+    loading: boolean // is loading
     err?: string
 }
 
-const initialState: IndicesState = { indices: [] }
+const initialState: IndicesState = { indices: [], loading: true }
 
 const genericErr = 'Error, unable to fetch indices from the API 😟'
 
@@ -35,7 +36,7 @@ export const indicesSlice = createSlice({
     initialState,
     reducers: {
         // Removes error from the state
-        removeError: (state: IndicesState) => ({
+        consumeError: (state: IndicesState) => ({
             ...state,
             err: undefined,
         }),
@@ -43,11 +44,19 @@ export const indicesSlice = createSlice({
 
     // Thunks
     extraReducers: (builder) => {
+        builder.addCase(fetchIndices.pending, (state) => {
+            state.loading = true
+        })
         builder.addCase(fetchIndices.fulfilled, (state, action) => {
-            return { ...state, indices: action.payload }
+            return { ...state, loading: false, indices: action.payload }
         })
         builder.addCase(fetchIndices.rejected, (state, action) => {
-            return { ...state, indices: [], err: action.payload as string }
+            return {
+                ...state,
+                loading: false,
+                indices: [],
+                err: action.error.message as string,
+            }
         })
     },
 })
@@ -55,4 +64,4 @@ export const indicesSlice = createSlice({
 const indicesReducer = indicesSlice.reducer
 export default indicesReducer
 
-export const { removeError } = indicesSlice.actions
+export const { consumeError } = indicesSlice.actions
