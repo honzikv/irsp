@@ -12,7 +12,6 @@ import { RootState } from '../../redux/store'
 import ContentLoading from '../Utils/ContentLoading'
 import CreateIndexDialog from './CreateIndexDialog'
 import IndexCardDetail from './IndexCardDetail'
-import { IndexDto } from './indicesDtos'
 import IndicesOverview from './IndicesOverview'
 import { consumeError, fetchIndices } from './indicesSlice'
 

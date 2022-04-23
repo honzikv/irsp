@@ -1,5 +1,8 @@
 # dictionary of all indices.py
+import json
 from typing import Iterable, List, Dict
+
+from fastapi import UploadFile
 
 from src.api.indices_dtos import DocumentDto, IndexDto
 from src.index.document import Document
@@ -71,7 +74,7 @@ class Index:
 
     def preprocess_document(self, document: DocumentDto):
         """
-        Preprocesses DocumentDto object
+        Preprocesses DocumentDto object. If the document does not have any id it will be assigned a new one
         :param document: DocumentDto object
         :return: preprocessed Document object
         """
@@ -185,6 +188,39 @@ class Index:
             nDocs=len(self.documents),
             exampleDocuments=example_docs
         )
+
+    def _parse_document_from_dict(self, doc_dict: dict) -> Document:
+        if not doc_dict['text']:
+            raise ValueError('Document text cannot be empty')
+
+        # Map to DocumentDto and let the index preprocess the text
+        return self.preprocess_document(
+            DocumentDto(docId=None, text=doc_dict['text'],
+                        additionalProperties={prop: val for prop, val in doc_dict.items() if prop != 'text'}))
+
+    def add_json_to_index(self, upload_file: UploadFile) -> List[Document]:
+        """
+        Adds json to index if possible. Throws ValueError if json is not valid
+        :param upload_file:
+        :return: List of all processed documents
+        """
+        try:
+            json_data = json.load(upload_file.file)
+            if isinstance(json_data, dict):
+                # If its dict we have a single document
+                doc = self._parse_document_from_dict(json_data)
+                self.add_document(doc)
+                return [doc]
+            elif isinstance(json_data, list):
+                # Else we have an array of documents
+                docs = [self._parse_document_from_dict(doc) for doc in json_data]
+                self.add_batch(docs)
+                return docs
+            else:
+                # Or something random so throw an error
+                raise ValueError()
+        except ValueError as e:
+            raise ValueError('Invalid JSON file received. Make sure the file is valid JSON with array of documents.')
 
 
 def get_index(name: str) -> Index:

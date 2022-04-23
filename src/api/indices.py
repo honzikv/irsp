@@ -16,6 +16,7 @@ indices_router = APIRouter(
 
 logger = logging.getLogger(__name__)
 
+
 @indices_router.post('/{name}')
 async def create_idx(name: str, idxConfig: str = Form(...), dataFile: Optional[UploadFile] = None):
     """
@@ -32,6 +33,10 @@ async def create_idx(name: str, idxConfig: str = Form(...), dataFile: Optional[U
 
         if dataFile:
             logger.info("Indexing data file")
+            try:
+                documents = await parse_json_documents()
+            except:
+                return {"success": True, "message": "Error indexing data file"}
 
         return {"success": True, "message": f"Index {name} was successfully created."}
     except ValueError as e:
