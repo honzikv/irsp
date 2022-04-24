@@ -37,7 +37,7 @@ async def create_idx(name: str, idxConfig: str = Form(...), dataFile: Optional[U
             try:
                 documents = index.add_json_to_index(dataFile)
                 return {"success": True,
-                        "message": f"Index {name} was successfully created and indexed {len(documents)} documents.",
+                        "message": f"Index {name} was successfully created with {len(documents)} documents.",
                         "documents": documents}
             except ValueError as e:
                 return {"success": False, "message": str(e)}
