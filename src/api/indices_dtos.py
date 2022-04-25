@@ -1,3 +1,5 @@
+from enum import Enum
+
 from pydantic.class_validators import Optional, List
 from pydantic.main import BaseModel as Model
 
@@ -81,3 +83,15 @@ class IndexDto(Model):
     nTerms: int
     nDocs: int
     exampleDocuments: List[DocumentDto]
+
+
+class ModelVariant(Enum):
+    TFIDF = 'tfidf'
+    BOOL = 'bool'
+    TRANSFORMERS = 'transformers'
+
+
+class QueryDto(Model):
+    query: str
+    topK: int
+    model: ModelVariant

@@ -10,13 +10,44 @@ import { useSelector } from 'react-redux'
 import { RootState } from './redux/store'
 import { useEffect, useState } from 'react'
 import Notification from './features/Notification/Notification'
-import IndexDetail from './features/Indices/Search/IndexDetail'
+import IndexSearch from './features/Indices/Search/IndexSearch'
 
 const App = () => {
+
+    const lightThemePalette = {
+        primary: {
+            main: '#2b2d42',
+        },
+        secondary: {
+            main: '#8d99ae',
+        },
+    }
+
+    const darkThemePalette = {
+        primary: {
+            main: '#15a2a2',
+        },
+        secondary: {
+            main: '#184e77',
+        },
+    }
+
+    const getPalette = (paletteMode: PaletteMode) => {
+        switch (paletteMode) {
+            case 'light':
+                return lightThemePalette
+            case 'dark':
+                return darkThemePalette
+            default:
+                return lightThemePalette
+        }
+    }
+
     const buildTheme = (paletteMode: PaletteMode) =>
         createTheme({
             palette: {
                 mode: paletteMode,
+                ...getPalette(paletteMode),
             },
             shape: {
                 borderRadius: 16
@@ -61,7 +92,7 @@ const App = () => {
                         <Routes>
                             <Route path="/" element={<Home />} />
                             <Route path="/indices" element={<Indices />} />
-                            <Route path="/indices/:name" element={<IndexDetail />} />
+                            <Route path="/indices/:name" element={<IndexSearch />} />
                         </Routes>
                     </Grid>
                     <Grid item xs={0} md={2} />

@@ -5,9 +5,12 @@ from typing import List
 from fastapi import APIRouter, Form, UploadFile, File
 from pydantic.class_validators import Optional
 
-from src.api.indices_dtos import DocumentDto, IndexConfigDto, PreprocessorConfigDto
+from src.api.indices_dtos import DocumentDto, IndexConfigDto, PreprocessorConfigDto, QueryDto
 from src.index.index import add_index, Index, delete_index, get_index
 from src.index.index import get_all_indices as _get_all_indices
+
+# This module contains all the endpoints in the /indices path
+# Since the app is very small some of the business code is here as well
 
 # API router to set endpoints for indexing
 indices_router = APIRouter(
@@ -134,3 +137,13 @@ def get_all_indices():
     :return: List of indices
     """
     return {"success": True, "message": _get_all_indices()}
+
+
+@indices_router.post('/{index_name}/search')
+def search(index_name: str, query_dto: QueryDto):
+    try:
+        index = get_index(index_name)
+        result = index.search(query_dto)
+        return {"success": True, "message": result}
+    except ValueError as e:
+        return {"success": False, "message": str(e)}

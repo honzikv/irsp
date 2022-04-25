@@ -69,4 +69,4 @@ class Parser:
             self.position += 1
             return next_char
 
-        
+

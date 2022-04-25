@@ -1,14 +1,14 @@
 import {
     AlertColor,
     Button,
-    ButtonTypeMap,
     Dialog,
     DialogActions,
     DialogContent,
     DialogContentText,
     DialogTitle,
-    ExtendButtonBase,
+    SvgIconTypeMap,
 } from '@mui/material'
+import { OverridableComponent } from '@mui/material/OverridableComponent'
 import { Fragment, FunctionComponent, useState } from 'react'
 
 export interface ConfirmationDialogProps {
@@ -21,6 +21,7 @@ export interface ConfirmationDialogProps {
     cancelButtonColor?: AlertColor
     title: string
     message: string
+    StartIcon?: OverridableComponent<SvgIconTypeMap>
 }
 
 const ButtonActionConfirmationDialog: FunctionComponent<
@@ -35,6 +36,7 @@ const ButtonActionConfirmationDialog: FunctionComponent<
     cancelButtonColor,
     message,
     title,
+    StartIcon
 }) => {
     const [open, setOpen] = useState(false)
 
@@ -54,9 +56,9 @@ const ButtonActionConfirmationDialog: FunctionComponent<
         <Fragment>
             <Button
                 variant={triggerButtonVariant}
-                // startIcon={<TriggerButtonIcon /> ?? <></>}
                 color={triggerButtonColor}
                 onClick={() => setOpen(true)}
+                startIcon={StartIcon ? <StartIcon /> : <></>}
             >
                 {triggerButtonText}
             </Button>

@@ -34,9 +34,5 @@ export interface DocumentSearchResultDto {
     additionalProperties: any
 }
 
-export interface IndexSearchDto {
-    documents: DocumentSearchResultDto[],
-    totalHits: number
-}
 
 

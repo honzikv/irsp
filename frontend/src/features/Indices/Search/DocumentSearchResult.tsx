@@ -24,7 +24,7 @@ export interface DocumentSearchResultProps {
 const DocumentSearchResult: FunctionComponent<DocumentSearchResultProps> = (
     props: DocumentSearchResultProps
 ) => {
-    const { docId, text, score, additionalProperties } = props.document
+    const { text, score } = props.document
     return (
         <Stack
             direction="column"
@@ -55,7 +55,7 @@ const DocumentSearchResult: FunctionComponent<DocumentSearchResultProps> = (
                         </Fragment>
                     )}
                     <Typography variant="h6" fontWeight="bold" sx={{ mt: 2 }}>
-                        Text of the Document
+                        Text
                     </Typography>
                     <Divider sx={{ mb: 1 }} />
                     <Typography

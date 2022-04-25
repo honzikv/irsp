@@ -7,6 +7,8 @@ import { showNotification } from '../Notification/notificationSlice'
 import { IndexDto } from './indicesDtos'
 import { fetchIndices } from './indicesSlice'
 import { Link as RouterLink } from 'react-router-dom'
+import SearchIcon from '@mui/icons-material/Search'
+import DeleteIcon from '@mui/icons-material/Delete'
 
 const IndexCardDetail: FunctionComponent<IndexDto> = ({
     name,
@@ -65,19 +67,17 @@ const IndexCardDetail: FunctionComponent<IndexDto> = ({
                 >
                     <ButtonActionConfirmationDialog
                         onConfirm={deleteIndex}
-                        onCancel={() => {}}
                         triggerButtonVariant="contained"
                         triggerButtonColor="error"
                         triggerButtonText="Delete"
+                        cancelButtonColor="error"
                         title={`Delete index ${name}`}
                         message={
                             'Are you sure you want to delete this index? This action is irreversible and all indexed documents will be lost.'
                         }
+                        StartIcon={DeleteIcon}
                     />
-                    <Button variant="contained" color="secondary" component={RouterLink} to={`/indices/${name}`}>
-                        Modify
-                    </Button>
-                    <Button component={RouterLink} variant="contained" to={`/indices/${name}`}>Search</Button>
+                    <Button component={RouterLink} startIcon={<SearchIcon />} variant="contained" to={`/indices/${name}`}>Search</Button>
                 </Stack>
             </CardContent>
         </Card>

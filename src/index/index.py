@@ -4,7 +4,7 @@ from typing import Iterable, List, Dict
 
 from fastapi import UploadFile
 
-from src.api.indices_dtos import DocumentDto, IndexDto
+from src.api.indices_dtos import DocumentDto, IndexDto, ModelVariant, QueryDto
 from src.index.document import Document
 from src.index.index_config import IndexConfig
 from src.index.term_info import TermInfo
@@ -13,7 +13,7 @@ from src.search.tfidf_model import calculate_tfidf
 
 # All indexes
 _indices = {}
-models = ['tf_idf', 'boolean', 'transformers', 'doc2vec']
+models = ['tf_idf', 'bool', 'transformers']
 
 
 class Index:
@@ -159,28 +159,18 @@ class Index:
         for term_info in self.inverted_idx.values():
             calculate_tfidf(term_info, n_docs)
 
-    def search(self, query: str, models: List[str], n_items: int = 10) -> dict:
+    def search(self, query_dto: QueryDto) -> dict:
         """
         Performs search on all models
-        :param query: sought query
-        :param models:
-        :param n_items: number of items to return
+        :param query_dto: QueryDto object
         :return: dictionary for json response
         """
-
+        query, model, n_items = query_dto.query, query_dto.model, query_dto.topK
         res = {}  # dictionary for response
-        for model_name in models:
-            if model_name not in self.models:
-                raise ValueError(f'{model_name} does not exist in index {self.config.name}')
 
-            model = self.models[model_name]
-            documents = model.search(query, n_items)
-            res[model_name] = {
-                'documents': documents,
-                'count': len(documents)
-            }
-
-        return res
+        # Model variant gets validated in the controller via Pydantic, so we can assume it's valid
+        search_model = self.models[model.value]
+        return search_model.search(query, n_items)
 
     def to_dto(self, n_example_docs=10) -> IndexDto:
         """
