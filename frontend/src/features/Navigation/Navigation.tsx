@@ -35,7 +35,7 @@ const menuItems: MenuItem[] = [
 const Navigation = () => {
     return (
         <Fragment>
-            <List sx={{pl: 4}}>
+            <List sx={{ml: 4}}>
                 {menuItems.map((item, idx) => (
                     <Link
                         underline="none"

@@ -5,3 +5,4 @@ src/index/__pycache__
 src/api/__pycache__
 frontend/yarn.lock
 __pycache__
+resources/nltk

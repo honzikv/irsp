@@ -1,0 +1,96 @@
+import {
+    Button,
+    Card,
+    CardContent,
+    Divider,
+    Stack,
+    Typography,
+} from '@mui/material'
+import { Fragment } from 'react'
+import { FunctionComponent } from 'react'
+import { DocumentSearchResultDto } from '../indicesDtos'
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
+import { DeleteOutline } from '@mui/icons-material'
+import DocumentDetail from './DocumentDetail'
+
+export interface DocumentSearchResultProps {
+    document: DocumentSearchResultDto
+    deleteDocument: (document: DocumentSearchResultDto) => void
+}
+
+/**
+ * Represents a search result for a document
+ */
+const DocumentSearchResult: FunctionComponent<DocumentSearchResultProps> = (
+    props: DocumentSearchResultProps
+) => {
+    const { docId, text, score, additionalProperties } = props.document
+    return (
+        <Stack
+            direction="column"
+            alignItems="stretch"
+            sx={{ minWidth: '100%', maxWidth: '100%' }}
+        >
+            <Card variant="outlined" sx={{ width: '100%' }}>
+                <CardContent>
+                    <Typography
+                        sx={{ mb: !score ? 1 : 0 }}
+                        color="text.secondary"
+                        gutterBottom
+                    >
+                        Document
+                    </Typography>
+                    {score && (
+                        <Fragment>
+                            <Stack
+                                direction="row"
+                                alignItems="baseline"
+                                spacing={1}
+                            >
+                                <Typography fontWeight="bold">
+                                    Score:
+                                </Typography>
+                                <Typography>{score.toFixed(3)}</Typography>
+                            </Stack>
+                        </Fragment>
+                    )}
+                    <Typography variant="h6" fontWeight="bold" sx={{ mt: 2 }}>
+                        Text of the Document
+                    </Typography>
+                    <Divider sx={{ mb: 1 }} />
+                    <Typography
+                        variant="body1"
+                        sx={{
+                            display: '-webkit-box',
+                            overflow: 'hidden',
+                            WebkitBoxOrient: 'vertical',
+                            WebkitLineClamp: 3,
+                        }}
+                    >
+                        {text}
+                    </Typography>
+                    <Stack
+                        direction="row"
+                        spacing={1}
+                        justifyContent="flex-end"
+                        sx={{ mt: 1 }}
+                        alignItems="flex-end"
+                    >
+                        <Button
+                            startIcon={<DeleteOutline />}
+                            variant="contained"
+                            color="error"
+                            size="small"
+                            onClick={() => props.deleteDocument(props.document)}
+                        >
+                            Delete
+                        </Button>
+                        <DocumentDetail {...props.document} />
+                    </Stack>
+                </CardContent>
+            </Card>
+        </Stack>
+    )
+}
+
+export default DocumentSearchResult

@@ -10,7 +10,7 @@ import { useSelector } from 'react-redux'
 import { RootState } from './redux/store'
 import { useEffect, useState } from 'react'
 import Notification from './features/Notification/Notification'
-import IndexDetail from './features/Indices/IndexDetail'
+import IndexDetail from './features/Indices/Search/IndexDetail'
 
 const App = () => {
     const buildTheme = (paletteMode: PaletteMode) =>

@@ -26,3 +26,17 @@ export interface IndexDto {
     nDocs: number
     exampleDocuments: DocumentDto[]
 }
+
+export interface DocumentSearchResultDto {
+    docId: number,
+    score?: number,
+    text: string,
+    additionalProperties: any
+}
+
+export interface IndexSearchDto {
+    documents: DocumentSearchResultDto[],
+    totalHits: number
+}
+
+

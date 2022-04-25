@@ -318,7 +318,7 @@ const CreateIndexDialog: FunctionComponent<CreateIndexDialogProps> = ({
                             {fileName ? (
                                 <Fragment>
                                     <Typography
-                                        sx={{ mr: 2 }}
+                                        sx={{ mr: 2, textOverflow: 'ellipsis', overflow: 'hidden' }}
                                         color="text.secondary"
                                         align="right"
                                     >
