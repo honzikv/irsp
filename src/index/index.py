@@ -9,7 +9,7 @@ from src.index.document import Document
 from src.index.index_config import IndexConfig
 from src.index.term_info import TermInfo
 from src.search.search_model import SearchModel
-from src.search.tfidf_model import calculate_tfidf
+from src.search.tfidf_model import calculate_tfidf, TfIdfModel
 
 # All indexes
 _indices = {}
@@ -26,7 +26,9 @@ class Index:
         self.inverted_idx: Dict[str, TermInfo] = {}  # inverted index for searching
         self.documents: Dict[int, Document] = {}  # dictionary of all documents in the index
         self._create_initial_batch(initial_batch)
-        self.models: Dict[str, SearchModel] = {}
+        self.models: Dict[str, SearchModel] = {
+            'tfidf': TfIdfModel(self, self.config.preprocessor)
+        }
         self.next_doc_id = 0  # next document id to be used
 
     def get_next_doc_id(self):

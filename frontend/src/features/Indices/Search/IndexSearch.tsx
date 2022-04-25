@@ -13,13 +13,15 @@ import {
     Typography,
 } from '@mui/material'
 import { useFormik } from 'formik'
-import { Fragment } from 'react'
+import { Fragment, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { useParams } from 'react-router-dom'
 import SearchIcon from '@mui/icons-material/Search'
 import DocumentSearchResult from './DocumentSearchResult'
 import { DocumentSearchResultDto } from '../indicesDtos'
 import SearchOverview from './SearchOverview'
+import axiosInstance from '../../../conf/axios'
+import { showNotification } from '../../Notification/notificationSlice'
 
 const sampleDoc: DocumentSearchResultDto = {
     docId: 1,
@@ -48,14 +50,65 @@ const IndexSearch = () => {
     const dispatch = useDispatch()
     const { name } = useParams()
 
+    const [model, setModel] = useState<string | undefined>(undefined)
+    const [searchSuccessful, setSearchSuccessful] = useState(false)
+    const [documents, setDocuments] = useState<DocumentSearchResultDto[]>([])
+
+    const mapModelToDisplayString = (model: string) => {
+        switch (model) {
+            case 'tfidf':
+                return 'TF-IDF'
+            case 'transformers':
+                return 'Transformers'
+            default:
+                return 'Boolean'
+        }
+    }
+
     const initialValues = {
         query: '',
         model: 'tfidf',
+        topK: 10,
     }
 
     const formik = useFormik({
         initialValues,
-        onSubmit: (values) => {},
+        onSubmit: async (values) => {
+            try {
+                const { data } = await axiosInstance.post(
+                    `/indices/${name}/search`,
+                    {
+                        query: values.query,
+                        model: values.model,
+                    }
+                )
+
+                if (!data.success) {
+                    dispatch(
+                        showNotification({
+                            message: data.message,
+                            type: 'error',
+                            autohideSecs: 5,
+                        })
+                    )
+                    setSearchSuccessful(false)
+                    setModel(undefined)
+                    return
+                }
+
+                setModel(mapModelToDisplayString(values.model))
+                setDocuments(data.documents ?? [] as DocumentSearchResultDto[])
+                setSearchSuccessful(true)
+            } catch (err: any) {
+                dispatch(
+                    showNotification({
+                        message: 'Error while communicating with the server',
+                        type: 'error',
+                        autohideSecs: 5,
+                    })
+                )
+            }
+        },
     })
 
     return (
@@ -85,6 +138,10 @@ const IndexSearch = () => {
                                     <InputBase
                                         sx={{ ml: 1, flex: 1 }}
                                         placeholder="Search Index"
+                                        value={formik.values.query}
+                                        onChange={(e: any) => {
+                                            formik.setFieldValue('query', e.target.value)
+                                        }}
                                         inputProps={{ 'aria-label': 'search' }}
                                     />
                                     <IconButton
@@ -103,26 +160,42 @@ const IndexSearch = () => {
                                         labelId="searchModelLabel"
                                         id="searchModel"
                                         value={formik.values.model}
-                                        onChange={(event: SelectChangeEvent) => formik.setFieldValue('model', event.target.value)}
+                                        onChange={(event: SelectChangeEvent) =>
+                                            formik.setFieldValue(
+                                                'model',
+                                                event.target.value
+                                            )
+                                        }
                                         label="SearchModel"
                                     >
-                                        <MenuItem value="tfidf">TF-IDF</MenuItem>
+                                        <MenuItem value="tfidf">
+                                            TF-IDF
+                                        </MenuItem>
                                         <MenuItem value="bool">Bool</MenuItem>
-                                        <MenuItem value="transformers">Transformers 🚗</MenuItem>
+                                        <MenuItem value="transformers">
+                                            Transformers 🚗
+                                        </MenuItem>
                                     </Select>
                                 </FormControl>
                             </Stack>
                         </form>
-
-                        <SearchOverview items={sampleDocs} />
+                        {searchSuccessful && (
+                            <SearchOverview
+                                model={model ?? 'TF-IDF'}
+                                items={sampleDocs}
+                            />
+                        )}
 
                         <Divider sx={{ my: 1 }} />
-                        <DocumentSearchResult
-                            {...{
-                                document: sampleDoc,
-                                deleteDocument: () => {},
-                            }}
-                        />
+                        {searchSuccessful
+                            ? documents.map((doc, idx) => (
+                                  <DocumentSearchResult
+                                      key={idx}
+                                      document={doc}
+                                      deleteDocument={() => {}}
+                                  />
+                              ))
+                            : null}
                     </Stack>
                 </Grid>
                 <Grid item xs={0} md={1} lg={2} />

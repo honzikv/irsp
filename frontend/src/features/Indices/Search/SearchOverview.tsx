@@ -1,19 +1,17 @@
-import {
-    Button,
-    Card,
-    CardContent,
-    Stack,
-    Typography,
-} from '@mui/material'
+import { Button, Card, CardContent, Stack, Typography } from '@mui/material'
 import { Fragment, FunctionComponent, useState } from 'react'
 import { DocumentSearchResultDto } from '../indicesDtos'
 import DownloadIcon from '@mui/icons-material/Download'
 
 export interface SearchOverviewProps {
+    model: string
     items: DocumentSearchResultDto[]
 }
 
-const SearchOverview: FunctionComponent<SearchOverviewProps> = ({ items }) => {
+const SearchOverview: FunctionComponent<SearchOverviewProps> = ({
+    model,
+    items,
+}) => {
     const bestScore = items.length > 0 ? items[0].score : 0
     const worstScore = items.length > 0 ? items[items.length - 1].score : 0
 
@@ -42,6 +40,9 @@ const SearchOverview: FunctionComponent<SearchOverviewProps> = ({ items }) => {
                     <Stack alignSelf="flex-start">
                         <Typography variant="h4" fontWeight="bold">
                             Overview
+                        </Typography>
+                        <Typography variant="body1" sx={{ fontSize: 24 }}>
+                            Model: {model}
                         </Typography>
                         {items.length === 0}
                         <Typography variant="body1">

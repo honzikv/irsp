@@ -10,7 +10,7 @@ from src.index.index import add_index, Index, delete_index, get_index
 from src.index.index import get_all_indices as _get_all_indices
 
 # This module contains all the endpoints in the /indices path
-# Since the app is very small some of the business code is here as well
+# Since the app is very small some of the business logic is placed here instead of service layer
 
 # API router to set endpoints for indexing
 indices_router = APIRouter(
@@ -141,6 +141,12 @@ def get_all_indices():
 
 @indices_router.post('/{index_name}/search')
 def search(index_name: str, query_dto: QueryDto):
+    """
+    Searches an index
+    :param index_name: Name of the index
+    :param query_dto: QueryDto object
+    :return:
+    """
     try:
         index = get_index(index_name)
         result = index.search(query_dto)

@@ -18,7 +18,6 @@ nltk_resources_dir = os.path.join(os.getcwd(), 'resources\\nltk\\')
 nltk.data.path.append(nltk_resources_dir)
 logger.info(f'NLTK resources directory set to: {nltk_resources_dir}')
 
-
 app = FastAPI()
 
 # Add cors
@@ -30,7 +29,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 
 
 @app.get("/")

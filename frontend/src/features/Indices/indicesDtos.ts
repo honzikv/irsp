@@ -28,11 +28,14 @@ export interface IndexDto {
 }
 
 export interface DocumentSearchResultDto {
-    docId: number,
-    score?: number,
-    text: string,
+    docId: number
+    score?: number
+    text: string
     additionalProperties: any
 }
 
-
-
+export interface QueryDto {
+    query: string
+    topK: number
+    model: string
+}

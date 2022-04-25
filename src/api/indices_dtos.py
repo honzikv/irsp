@@ -93,5 +93,5 @@ class ModelVariant(Enum):
 
 class QueryDto(Model):
     query: str
-    topK: int
+    topK: Optional[int]
     model: ModelVariant
