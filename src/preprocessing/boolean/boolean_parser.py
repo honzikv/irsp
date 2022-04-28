@@ -1,7 +1,7 @@
 from enum import Enum
-from io import StringIO
 
 from antlr4 import CommonTokenStream, InputStream
+from antlr4.error.ErrorListener import ErrorListener
 
 from src.preprocessing.boolean.parser.BooleanGrammarLexer import BooleanGrammarLexer
 from src.preprocessing.boolean.parser.BooleanGrammarParser import BooleanGrammarParser
@@ -9,19 +9,59 @@ from src.preprocessing.boolean.parser.BooleanGrammarVisitor import BooleanGramma
 
 
 class BooleanOperator(Enum):
-    AND = 0
-    OR = 1
-    NOT = 2
+    """
+    Enum for boolean operators
+    """
+    AND = 0,
+    OR = 1,
+    NOT = 2,
 
 
 class QueryItem:
+    """
+    Tree-like structure which holds operator and items its being applied to.
+    Items can either be strings or other QueryItems.
+    """
 
     def __init__(self, items, operator: BooleanOperator):
         self.items = items
         self.operator = operator
 
+    def __str__(self):
+        if isinstance(self.items, str):
+            return '{ item: ' + f'{self.items} {self.operator.name}' + '}'
+
+        items = '{ items: [\n'
+        for idx, item in enumerate(self.items):
+            if idx == len(self.items) - 1:
+                items += f'{item}\n],\n operator: {self.operator.name}'
+            else:
+                items += f'{item}, '
+        return items + ' }'
+
+
+class BooleanErrorListener(ErrorListener):
+
+    def __init__(self):
+        super(BooleanErrorListener, self).__init__()
+
+    def syntaxError(self, recognizer, offendingSymbol, line, column, msg, e):
+        raise ValueError()
+
+    def reportAmbiguity(self, recognizer, dfa, startIndex, stopIndex, exact, ambigAlts, configs):
+        raise ValueError()
+
+    def reportAttemptingFullContext(self, recognizer, dfa, startIndex, stopIndex, conflictingAlts, configs):
+        raise ValueError()
+
+    def reportContextSensitivity(self, recognizer, dfa, startIndex, stopIndex, prediction, configs):
+        raise ValueError()
+
 
 class BooleanQueryVisitor(BooleanGrammarVisitor):
+    """
+    ANTLR4 visitor implementation
+    """
 
     def __init__(self):
         self.query = []
@@ -65,8 +105,18 @@ class BooleanQueryVisitor(BooleanGrammarVisitor):
         return self.visit(ctx.expression())
 
 
-lexer = BooleanGrammarLexer(InputStream("I am                 really smurfing OR not"))
-stream = CommonTokenStream(lexer)
-parser = BooleanGrammarParser(stream)
-tree = parser.start()
-ans = BooleanQueryVisitor().visit(tree)
+def parse_boolean_query(query: str):
+    """
+    Parse a boolean query and return a QueryItem object
+    :param query: a boolean query - string
+    :return: a QueryItem object
+    """
+    lexer = BooleanGrammarLexer(InputStream(query))
+    lexer.removeErrorListeners()
+    lexer.addErrorListener(BooleanErrorListener())
+    stream = CommonTokenStream(lexer)
+    parser = BooleanGrammarParser(stream)
+    parser.addErrorListener(BooleanErrorListener())
+    tree = parser.start()
+    return BooleanQueryVisitor().visit(tree)
+

@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List
+from typing import List, Dict
 
 from src.index.term_info import TermInfo
 
@@ -15,7 +15,7 @@ class SearchModel(ABC):
         Constructor
         :param index: index to search in
         """
-        self.inverted_idx = index.inverted_idx
+        self.inverted_idx: Dict[str, TermInfo] = index.inverted_idx
 
     @abstractmethod
     def search(self, query: str, n_items=None):
