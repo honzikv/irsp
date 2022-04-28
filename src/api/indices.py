@@ -26,7 +26,7 @@ async def create_idx(name: str, idxConfig: str = Form(...), dataFile: Optional[U
     Creates an index
     :param name: Name of the index
     :param idxConfig: json with configuration
-    :param dataFile: File containing the data to index - may be null
+    :param dataFile: File containing the docs to index - may be null
     :return: True if successful, False otherwise
     """
     try:
@@ -39,7 +39,7 @@ async def create_idx(name: str, idxConfig: str = Form(...), dataFile: Optional[U
             return {"success": True, "message": f"Index {name} was successfully created."}
 
         index = get_index(name)
-        logger.info("Indexing data file")
+        logger.info("Indexing docs file")
         documents = index.add_json_to_index(dataFile)
         return {"success": True,
                 "message": f"Index {name} was successfully created with {len(documents)} documents.",

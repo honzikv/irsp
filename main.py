@@ -6,7 +6,11 @@ from fastapi import FastAPI
 # Main script which launches the api
 from starlette.middleware.cors import CORSMiddleware
 
+from nltk_dependencies import download_dependencies
 from src.api.indices import indices_router
+
+# Download dependencies
+download_dependencies()
 
 # Configure logging
 logging.config.fileConfig('logging.conf', disable_existing_loggers=False)

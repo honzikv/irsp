@@ -8,6 +8,7 @@ from src.api.indices_dtos import DocumentDto, IndexDto, ModelVariant, QueryDto
 from src.index.document import Document
 from src.index.index_config import IndexConfig
 from src.index.term_info import TermInfo
+from src.search.boolean_model import BooleanModel
 from src.search.search_model import SearchModel
 from src.search.tfidf_model import calculate_tfidf, TfIdfModel
 
@@ -27,7 +28,8 @@ class Index:
         self.documents: Dict[int, Document] = {}  # dictionary of all documents in the index
         self._create_initial_batch(initial_batch)
         self.models: Dict[str, SearchModel] = {
-            'tfidf': TfIdfModel(self, self.config.preprocessor)
+            'tfidf': TfIdfModel(self, self.config.preprocessor),
+            'bool': BooleanModel(self, self.config.preprocessor)
         }
         self.next_doc_id = 0  # next document id to be used
 
@@ -167,8 +169,6 @@ class Index:
         :return: dictionary for json response
         """
         query, model, n_items = query_dto.query, query_dto.model, query_dto.topK
-        res = {}  # dictionary for response
-
         # Model variant gets validated in the controller via Pydantic, so we can assume it's valid
         search_model = self.models[model.value]
         return search_model.search(query, n_items)

@@ -1,7 +1,6 @@
 from typing import List, Set, Dict
 
 from src.index.document import Document
-from src.index.index import Index
 from src.index.term_info import TermInfo
 from src.preprocessing.boolean.boolean_parser import parse_boolean_query, QueryItem, BooleanOperator
 from src.preprocessing.preprocessing import Preprocessor
@@ -16,7 +15,7 @@ class BooleanModel(SearchModel):
     def recalculate_terms(self, terms: List[TermInfo], n_docs: int):
         pass
 
-    def __init__(self, index: Index, preprocessor: Preprocessor):
+    def __init__(self, index, preprocessor: Preprocessor):
         super().__init__(index)
         self.preprocessor = preprocessor
         self.documents = index.documents

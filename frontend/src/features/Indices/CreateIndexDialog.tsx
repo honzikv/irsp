@@ -100,7 +100,7 @@ const CreateIndexDialog: FunctionComponent<CreateIndexDialogProps> = ({
                     formData,
                     {
                         headers: {
-                            'Content-Type': 'multipart/form-data',
+                            'Content-Type': 'multipart/form-docs',
                         },
                     }
                 )
