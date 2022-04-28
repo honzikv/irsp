@@ -1,3 +1,4 @@
+import logging
 from typing import Dict, List, Tuple
 
 import numpy as np
@@ -7,6 +8,8 @@ from src.index.term_info import TermInfo
 from src.preprocessing.preprocessing import Preprocessor
 from src.search.cosine_similarity import cosine_similarity
 from src.search.search_model import SearchModel
+
+logger = logging.getLogger(__name__)
 
 
 def calculate_tfidf(term_info: TermInfo, total_docs: int):
@@ -62,7 +65,7 @@ def tfidf_vectorize_query(terms: Dict[str, TermInfo], query: Document, n_docs: i
 
 class TfIdfModel(SearchModel):
     """
-    TF-IDF model which uses cosine similarity for searching
+    TF-IDF model which uses cosine similarity for searching.
     """
 
     def __init__(self, index, preprocessor: Preprocessor):
@@ -80,20 +83,23 @@ class TfIdfModel(SearchModel):
         # Preprocess the query and get all terms
         tokens = self.preprocessor.get_tokens(query)
         terms = set(tokens)
-
-        # Get all documents that contain at least one of the terms
         inverted_idx = self.inverted_idx
+
+        logger.debug(f'Searching for {terms}')
 
         # List of all unique documents that contain at least one of the terms
         documents = {}
         for term in terms:
-            if term not in inverted_idx:
+            if term not in inverted_idx:  # ignore any term that is not in inverted index
                 continue
 
+            # now iterate for each document that has at least one of the term and add it to the list
             for document_info in inverted_idx[term].documents.values():
                 document = document_info.document
                 if document not in documents:
                     documents[document.doc_id] = document
+
+        logger.info(f"Found {len(documents)} documents for terms {terms}")
 
         # Get vector representation for query
         query_vector = tfidf_vectorize_query(inverted_idx, Document(-1, tokens, ''), len(documents))
@@ -104,4 +110,16 @@ class TfIdfModel(SearchModel):
             doc_vec = tfidf_vectorize_document(inverted_idx, document)
             results.append((cosine_similarity(query_vector, doc_vec), document))
 
+        # Sort the results by score descending
+        results.sort(key=lambda x: x[0], reverse=True)
         return results
+
+    def recalculate_terms(self, terms: List[TermInfo], n_docs: int):
+        """
+        Recalculate tf-idf scores
+        :param terms:
+        :param n_docs:
+        :return:
+        """
+        for term_info in terms:
+            calculate_tfidf(term_info, n_docs)

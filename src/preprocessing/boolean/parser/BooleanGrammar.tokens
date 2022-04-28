@@ -1,0 +1,12 @@
+AND=1
+OR=2
+NOT=3
+LPAR=4
+RPAR=5
+WHITESPACE=6
+QUERY_TERM=7
+'AND'=1
+'OR'=2
+'NOT'=3
+'('=4
+')'=5

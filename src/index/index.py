@@ -47,9 +47,8 @@ class Index:
         :return: None
         """
         n_docs = len(self.documents)
-        # Recalculate all terms that were changed
-        for term in terms:
-            calculate_tfidf(term, n_docs)
+        for model in self.models.values():
+            model.recalculate_terms(terms, n_docs)
 
     def add_batch(self, batch: List[Document]):
         """

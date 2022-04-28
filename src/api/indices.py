@@ -34,18 +34,16 @@ async def create_idx(name: str, idxConfig: str = Form(...), dataFile: Optional[U
         index_config_dto = IndexConfigDto(name=name, preprocessorConfig=preprocessor_config_dto)
         add_index(name, Index(index_config_dto.to_domain_object(), []))
 
-        if dataFile:
-            index = get_index(name)
-            logger.info("Indexing data file")
-            try:
-                documents = index.add_json_to_index(dataFile)
-                return {"success": True,
-                        "message": f"Index {name} was successfully created with {len(documents)} documents.",
-                        "documents": documents}
-            except ValueError as e:
-                return {"success": False, "message": str(e)}
+        if not dataFile:
+            # Process datafile if provided
+            return {"success": True, "message": f"Index {name} was successfully created."}
 
-        return {"success": True, "message": f"Index {name} was successfully created."}
+        index = get_index(name)
+        logger.info("Indexing data file")
+        documents = index.add_json_to_index(dataFile)
+        return {"success": True,
+                "message": f"Index {name} was successfully created with {len(documents)} documents.",
+                "documents": documents}
     except ValueError as e:
         return {"success": False, "message": str(e)}
 

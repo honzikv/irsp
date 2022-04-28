@@ -1,4 +1,7 @@
 from abc import ABC, abstractmethod
+from typing import List
+
+from src.index.term_info import TermInfo
 
 
 class SearchModel(ABC):
@@ -21,5 +24,15 @@ class SearchModel(ABC):
         :param query: sought query
         :param n_items: number of items to return
         :return: list of all documents matching the query
+        """
+        pass
+
+    @abstractmethod
+    def recalculate_terms(self, terms: List[TermInfo], n_docs: int):
+        """
+        Recalculates model according to the new terms
+        :param terms: new terms
+        :param n_docs: new number of documents
+        :return: None
         """
         pass
