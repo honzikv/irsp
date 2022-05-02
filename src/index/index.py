@@ -67,7 +67,8 @@ class Index:
                     self.inverted_idx[term] = TermInfo(document, term)
                 else:
                     self.inverted_idx[term].append_document(document, term)
-                    terms_to_recalculate.add(self.inverted_idx[term])
+
+                terms_to_recalculate.add(self.inverted_idx[term])
 
             # Add document to the index
             self.documents[document.doc_id] = document

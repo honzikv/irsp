@@ -1,3 +1,5 @@
+from typing import List
+
 import unicodedata
 import nltk
 
@@ -54,7 +56,24 @@ class PreprocessorConfig:
             raise ValueError('Language not supported')
 
 
+class SimplePreprocessor:
+    """
+    Simplest preprocessor implementation that only splits by whitespaces (used for debug)
+    """
+
+    def get_tokens(self, text: str) -> List[str]:
+        """
+        Returns tokens of the text
+        :param text: text to tokenize
+        :return: list of tokens
+        """
+        return text.split()
+
+
 class Preprocessor:
+    """
+    Class for text preprocessing. Can split text into tokens / terms
+    """
 
     def __init__(self, config: PreprocessorConfig):
         self.config = config

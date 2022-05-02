@@ -40,3 +40,4 @@ english_default_lemmatizer = PreprocessorConfig(
     use_stemmer=False,
     remove_accents_after_stemming=True
 )
+

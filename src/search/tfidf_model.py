@@ -23,9 +23,10 @@ def calculate_tfidf(term_info: TermInfo, total_docs: int):
     idf = np.log10(total_docs / term_info.document_frequency)
 
     # Iterate over each document and calculate their tf-idf score
-    for document_info in term_info.documents.values():
-        tf = np.log10(1 + document_info.term_frequency)
-        document_info.tfidf = tf * idf
+    for _, document_info in term_info.documents.items():
+        tf = (1 + np.log10(document_info.term_frequency)) if document_info.term_frequency > 0 else 0
+        tfidf = tf * idf
+        document_info.tfidf = 0 if tfidf is None or tfidf == float('nan') else tfidf
 
 
 def tfidf_vectorize_document(terms: Dict[str, TermInfo], document: Document) -> np.array:
@@ -57,7 +58,8 @@ def tfidf_vectorize_query(terms: Dict[str, TermInfo], query: Document, n_docs: i
     dim = 0
     for term, term_info in terms.items():
         if term in query.bow:
-            vector[dim] = np.log10(1 + query.bow[term]) * np.log10(n_docs / term_info.document_frequency)
+            tf = (1 + np.log10(query.bow[term])) if query.bow[term] > 0 else 0
+            vector[dim] = tf * np.log10(n_docs / term_info.document_frequency)
         dim += 1
 
     return vector
@@ -71,6 +73,7 @@ class TfIdfModel(SearchModel):
     def __init__(self, index, preprocessor: Preprocessor):
         super().__init__(index)
         self.preprocessor = preprocessor
+        self.n_docs = len(index.documents)
 
     def search(self, query: str, top_n: int = 10):
         """
@@ -102,16 +105,16 @@ class TfIdfModel(SearchModel):
         logger.info(f"Found {len(documents)} documents for terms {terms}")
 
         # Get vector representation for query
-        query_vector = tfidf_vectorize_query(inverted_idx, Document(-1, tokens, ''), len(documents))
+        query_vector = tfidf_vectorize_query(inverted_idx, Document(-1, tokens, ''), self.n_docs)
 
         # Calculate the cosine similarity for each document
         results = []
-        for doc_id, document in documents:
+        for doc_id, document in documents.items():
             doc_vec = tfidf_vectorize_document(inverted_idx, document)
-            results.append((cosine_similarity(query_vector, doc_vec), document))
+            results.append({"score": cosine_similarity(query_vector, doc_vec), "document": document})
 
         # Sort the results by score descending
-        results.sort(key=lambda x: x[0], reverse=True)
+        results.sort(key=lambda x: x["score"], reverse=True)
         return results
 
     def recalculate_terms(self, terms: List[TermInfo], n_docs: int):
@@ -123,3 +126,5 @@ class TfIdfModel(SearchModel):
         """
         for term_info in terms:
             calculate_tfidf(term_info, n_docs)
+
+        self.n_docs = n_docs
