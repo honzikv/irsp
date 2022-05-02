@@ -1,6 +1,6 @@
 import nltk
 import os
-from nltk_dependencies import download_dependencies
+from nltk_dependencies import setup_dependencies
 
 # Download dependencies if necessary
 import json
@@ -12,7 +12,7 @@ from src.index.index_config import IndexConfig
 from src.preprocessing.preprocessing import Preprocessor, SimplePreprocessor
 from src.index.index import add_index, delete_index
 
-download_dependencies()
+setup_dependencies()
 
 # Configure NLTK - set the resource path to correct location
 nltk_resources_dir = os.path.join(os.getcwd(), 'resources\\nltk\\')

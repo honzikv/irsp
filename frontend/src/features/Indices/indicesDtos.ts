@@ -14,7 +14,7 @@ export interface IndexConfigDto {
 }
 
 export interface DocumentDto {
-    id: number
+    docId: number
     text: string
     additionalProperties: any
 }
@@ -28,10 +28,8 @@ export interface IndexDto {
 }
 
 export interface DocumentSearchResultDto {
-    docId: number
-    score?: number
-    text: string
-    additionalProperties: any
+    score?: number,
+    document: DocumentDto
 }
 
 export interface QueryDto {

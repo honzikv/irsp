@@ -14,7 +14,7 @@ import { DeleteOutline } from '@mui/icons-material'
 import DocumentDetail from './DocumentDetail'
 
 export interface DocumentSearchResultProps {
-    document: DocumentSearchResultDto
+    documentInfo: DocumentSearchResultDto
     deleteDocument: (document: DocumentSearchResultDto) => void
 }
 
@@ -24,7 +24,8 @@ export interface DocumentSearchResultProps {
 const DocumentSearchResult: FunctionComponent<DocumentSearchResultProps> = (
     props: DocumentSearchResultProps
 ) => {
-    const { text, score } = props.document
+    const { score, document } = props.documentInfo
+    const { text } = document
     return (
         <Stack
             direction="column"
@@ -81,11 +82,11 @@ const DocumentSearchResult: FunctionComponent<DocumentSearchResultProps> = (
                             variant="contained"
                             color="error"
                             size="small"
-                            onClick={() => props.deleteDocument(props.document)}
+                            onClick={() => props.deleteDocument(props.documentInfo)}
                         >
                             Delete
                         </Button>
-                        <DocumentDetail {...props.document} />
+                        <DocumentDetail {...document} />
                     </Stack>
                 </CardContent>
             </Card>

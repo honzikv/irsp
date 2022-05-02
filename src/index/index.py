@@ -1,6 +1,6 @@
 # dictionary of all indices.py
 import json
-from typing import Iterable, List, Dict
+from typing import List, Dict
 
 from fastapi import UploadFile
 
@@ -163,7 +163,7 @@ class Index:
         for term_info in self.inverted_idx.values():
             calculate_tfidf(term_info, n_docs)
 
-    def search(self, query_dto: QueryDto) -> dict:
+    def search(self, query_dto: QueryDto) -> list:
         """
         Performs search on all models
         :param query_dto: QueryDto object
@@ -172,7 +172,16 @@ class Index:
         query, model, n_items = query_dto.query, query_dto.model, query_dto.topK
         # Model variant gets validated in the controller via Pydantic, so we can assume it's valid
         search_model = self.models[model.value]
-        return search_model.search(query, n_items)
+
+        search_result = search_model.search(query, n_items)
+
+        if model == ModelVariant.BOOL:
+            # For boolean model return score as NaN
+            return [{'score': float('nan'), 'document': DocumentDto.from_domain_object(item)} for item in search_result]
+
+        # Else return score and document
+        return [{'score': item['score'], 'document': DocumentDto.from_domain_object(item['document'])} for item in
+                search_result]
 
     def to_dto(self, n_example_docs=10) -> IndexDto:
         """

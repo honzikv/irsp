@@ -8,15 +8,15 @@ import {
     Typography,
 } from '@mui/material'
 import { Fragment, FunctionComponent, useState } from 'react'
-import { DocumentSearchResultDto } from '../indicesDtos'
+import { DocumentDto, DocumentSearchResultDto } from '../indicesDtos'
 import InfoIcon from '@mui/icons-material/Info'
 import { Box } from '@mui/system'
 import JSONPretty from 'react-json-pretty'
 import 'react-json-pretty/themes/monikai.css'
 import DownloadIcon from '@mui/icons-material/Download'
 
-const DocumentDetail: FunctionComponent<DocumentSearchResultDto> = (
-    props: DocumentSearchResultDto
+const DocumentDetail: FunctionComponent<DocumentDto> = (
+    props: DocumentDto
 ) => {
     const { docId, text, additionalProperties } = props
     const [open, setOpen] = useState(false)

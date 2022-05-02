@@ -1,9 +1,8 @@
 from typing import List
 
 import unicodedata
-import nltk
 
-from nltk import WordNetLemmatizer, SnowballStemmer, PorterStemmer, word_tokenize
+from nltk import WordNetLemmatizer, PorterStemmer, word_tokenize
 from nltk.corpus import stopwords
 from src.preprocessing.czech_lemmatizer import CzechLemmatizer
 from src.preprocessing.czech_stemmer import CzechStemmer
@@ -87,26 +86,26 @@ class Preprocessor:
         :return: list of terms
         """
 
-        # lowercase
+        # Lowercase
         if self.config.lowercase:
             text = text.lower()
 
-        # remove accents
+        # Remove accents
         if self.config.remove_accents:
             text = self._remove_accents(text)
 
-        # remove punctuation
+        # Remove punctuation
         if self.config.remove_punctuation:
             text = text.translate(str.maketrans('', '', '!"#$%&\'()*+,./:;<=>?@[\\]^_`{|}~'))
 
-        # tokenize
+        # Tokenize
         text = word_tokenize(text, language=self.config.lang_full)
 
-        # remove stopwords
+        # Remove stopwords
         if self.config.remove_stopwords:
             text = self._remove_stopwords(text)
 
-        # use stemmer or lemmatizer
+        # Use stemmer or lemmatizer
         tokens = []
         for token in text:
             if self.config.use_stemmer:

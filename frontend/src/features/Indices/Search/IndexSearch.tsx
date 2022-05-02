@@ -23,28 +23,6 @@ import SearchOverview from './SearchOverview'
 import axiosInstance from '../../../conf/axios'
 import { showNotification } from '../../Notification/notificationSlice'
 
-const sampleDoc: DocumentSearchResultDto = {
-    docId: 1,
-    text: 'Zombie ipsum reversus ab viral inferno, nam rick grimes malum cerebro. De carne lumbering animata corpora quaeritis. Summus brains sit​​, morbo vel maleficia? De apocalypsi gorger omero undead survivor dictum mauris. Hi mindless mortuis soulless creaturas, imo evil stalking monstra adventus resi dentevil vultus comedat cerebella viventium. Qui animated corpse, cricket bat max brucks terribilem incessu zomby. The voodoo sacerdos flesh eater, suscitat mortuos comedere carnem virus. Zonbi tattered for solum oculi eorum defunctis go lum cerebro. Nescio brains an Undead zombies. Sicut malus putrid voodoo horror. Nigh tofth eliv ingdead.    ',
-    score: 0.5,
-    additionalProperties: {
-        indexName: 'test',
-        indexType: 'test',
-    },
-}
-
-const sampleDoc2: DocumentSearchResultDto = {
-    docId: 1,
-    text: 'Zombie 🧟 ipsum reversus ab viral inferno, nam rick grimes malum cerebro. De carne lumbering animata corpora quaeritis. Summus brains sit​​, morbo vel maleficia? De apocalypsi gorger omero undead survivor dictum mauris. Hi mindless mortuis soulless creaturas, imo evil stalking monstra adventus resi dentevil vultus comedat cerebella viventium. Qui animated corpse, cricket bat max brucks terribilem incessu zomby. The voodoo sacerdos flesh eater, suscitat mortuos comedere carnem virus. Zonbi tattered for solum oculi eorum defunctis go lum cerebro. Nescio brains an Undead zombies. Sicut malus putrid voodoo horror. Nigh tofth eliv ingdead.    ',
-    score: 0.5,
-    additionalProperties: {
-        indexName: 'test',
-        indexType: 'test',
-    },
-}
-
-const sampleDocs: DocumentSearchResultDto[] = [sampleDoc, sampleDoc2]
-
 // Detail component which shows the search bar, results and some configuration
 const IndexSearch = () => {
     const dispatch = useDispatch()
@@ -86,7 +64,9 @@ const IndexSearch = () => {
                 if (!data.success) {
                     dispatch(
                         showNotification({
-                            message: data.message,
+                            message:
+                                data.message ??
+                                'Unknown error occurred, please try again later.',
                             type: 'error',
                             autohideSecs: 5,
                         })
@@ -96,8 +76,10 @@ const IndexSearch = () => {
                     return
                 }
 
+                console.log(data)
+
                 setModel(mapModelToDisplayString(values.model))
-                setDocuments(data.documents ?? [] as DocumentSearchResultDto[])
+                setDocuments(data.message ?? ([] as DocumentSearchResultDto[]))
                 setSearchSuccessful(true)
             } catch (err: any) {
                 dispatch(
@@ -140,7 +122,10 @@ const IndexSearch = () => {
                                         placeholder="Search Index"
                                         value={formik.values.query}
                                         onChange={(e: any) => {
-                                            formik.setFieldValue('query', e.target.value)
+                                            formik.setFieldValue(
+                                                'query',
+                                                e.target.value
+                                            )
                                         }}
                                         inputProps={{ 'aria-label': 'search' }}
                                     />
@@ -182,20 +167,28 @@ const IndexSearch = () => {
                         {searchSuccessful && (
                             <SearchOverview
                                 model={model ?? 'TF-IDF'}
-                                items={sampleDocs}
+                                items={documents}
                             />
                         )}
 
                         <Divider sx={{ my: 1 }} />
-                        {searchSuccessful
-                            ? documents.map((doc, idx) => (
-                                  <DocumentSearchResult
-                                      key={idx}
-                                      document={doc}
-                                      deleteDocument={() => {}}
-                                  />
-                              ))
-                            : null}
+                        <Stack
+                            direction="column"
+                            justifyContent="center"
+                            alignItems="stretch"
+                            alignSelf="stretch"
+                            spacing={1}
+                        >
+                            {searchSuccessful
+                                ? documents.map((doc, idx) => (
+                                      <DocumentSearchResult
+                                          key={idx}
+                                          documentInfo={doc}
+                                          deleteDocument={() => {}}
+                                      />
+                                  ))
+                                : null}
+                        </Stack>
                     </Stack>
                 </Grid>
                 <Grid item xs={0} md={1} lg={2} />
