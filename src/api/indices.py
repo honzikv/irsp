@@ -79,38 +79,6 @@ def add_documents(index_name: str, documents: List[DocumentDto]):
         return {"success": False, "message": str(e)}
 
 
-@index_router.delete('/{index_name}/documents/{doc_id}')
-def delete_document(index_name: str, doc_id: int):
-    """
-    Deletes a document from an index
-    :param index_name: Name of the index
-    :param doc_id: Document ID
-    :return: True if successful, False otherwise
-    """
-    try:
-        index = get_index(index_name)
-        index.delete_document(doc_id)
-        return {"success": True}
-    except ValueError as e:
-        return {"success": False, "message": str(e)}
-
-
-@index_router.delete('/{index_name}/documents/batch')
-def delete_documents(index_name: str, doc_ids: List[int]):
-    """
-    Deletes a list of documents from an index
-    :param index_name: Name of the index
-    :param doc_ids: List of document IDs
-    :return: True if successful, False otherwise
-    """
-    try:
-        index = get_index(index_name)
-        index.delete_batch(doc_ids)
-        return {"success": True}
-    except ValueError as e:
-        return {"success": False, "message": str(e)}
-
-
 @index_router.get('/')
 def get_all_indices():
     """

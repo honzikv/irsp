@@ -1,3 +1,4 @@
+import uuid
 from typing import Dict
 
 from src.index.document import Document
@@ -17,7 +18,7 @@ class TermInfo:
         """
         # Documents are stored as a dictionary with document id as key and document as value
         doc_term_frequency = document.bow[term_name]
-        self.documents: Dict[int, DocumentInfo] = {document.doc_id: DocumentInfo(document, doc_term_frequency)}
+        self.documents: Dict[uuid.UUID, DocumentInfo] = {document.doc_id: DocumentInfo(document, doc_term_frequency)}
         self.collection_frequency = doc_term_frequency
         self.document_frequency = 1
 
@@ -46,7 +47,7 @@ class TermInfo:
         self.documents[document.doc_id] = document_info
         self.document_frequency += 1
 
-    def remove_document(self, document_id: int):
+    def remove_document(self, document_id: uuid.UUID):
         """
         Removes document from the specified term
         :param document_id: id of the document

@@ -1,10 +1,14 @@
-from typing import List, Set, Dict
+import logging
+import uuid
+from typing import List, Set, Dict, Union
 
 from src.index.document import Document
 from src.index.term_info import TermInfo
 from src.preprocessing.boolean.boolean_parser import parse_boolean_query, QueryItem, BooleanOperator
 from src.preprocessing.preprocessing import Preprocessor
 from src.search.search_model import SearchModel
+
+logger = logging.getLogger(__name__)
 
 
 class BooleanModel(SearchModel):
@@ -28,15 +32,35 @@ class BooleanModel(SearchModel):
         :return: List of all matching documents
         """
         try:
-            parsed_query = parse_boolean_query(query)
+            preprocessed_query = self._preprocess_query(parse_boolean_query(query))
         except ValueError:
             raise ValueError('Query is not valid')
 
         # DFS traverse the parsed query
-        document_ids = self._dfs_traverse(parsed_query)
+        document_ids = self._dfs_traverse(preprocessed_query)
         return [self.documents[doc_id] for doc_id in document_ids]
 
-    def _find_documents_for_token(self, token: str) -> Set[int]:
+    def _preprocess_query(self, query: Union[QueryItem, str]):
+        if isinstance(query, str):
+            # If we end up with query that is a string this means that there will be either one or more words
+            tokens = self.preprocessor.get_tokens(query)
+            if len(tokens) == 0: return None
+            # We can treat this as an AND expression and even
+            # if we only have one token we will get correct search results
+            return QueryItem(items=tokens, operator=BooleanOperator.AND)
+
+        # Now we must have either list of strings / query items
+        preprocessed_items = []
+        for item in query.items:
+            preprocessed_item = self._preprocess_query(item)
+            if preprocessed_item is None:
+                continue
+            preprocessed_items.append(preprocessed_item)
+
+        query.items = preprocessed_items
+        return query
+
+    def _find_documents_for_token(self, token: str) -> Set[uuid.UUID]:
         """
         Find all documents containing the token
         :param token: token to search
@@ -56,9 +80,9 @@ class BooleanModel(SearchModel):
 
         return docs
 
-    def _dfs_traverse(self, query: QueryItem) -> Set[int]:
+    def _dfs_traverse(self, query: Union[QueryItem, str]) -> Set[uuid.UUID]:
         """
-        AND search
+        DFS traversal
         :param items: list of QueryItems
         :return: List of ids of all matching documents
         """

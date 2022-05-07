@@ -1,5 +1,7 @@
 # dictionary of all indices.py
 import json
+import uuid
+from datetime import datetime
 from typing import List, Dict
 
 from fastapi import UploadFile
@@ -25,22 +27,19 @@ class Index:
     def __init__(self, config: IndexConfig, initial_batch: List[Document]):
         self.config: IndexConfig = config
         self.inverted_idx: Dict[str, TermInfo] = {}  # inverted index for searching
-        self.documents: Dict[int, Document] = {}  # dictionary of all documents in the index
+        self.documents: Dict[uuid.UUID, Document] = {}  # dictionary of all documents in the index
         self._create_initial_batch(initial_batch)
         self.models: Dict[str, SearchModel] = {
             'tfidf': TfIdfModel(self, self.config.preprocessor),
             'bool': BooleanModel(self, self.config.preprocessor)
         }
-        self.next_doc_id = 0  # next document id to be used
 
     def get_next_doc_id(self):
         """
         Returns next document id to be used
-        :return: int
+        :return: uuid.UUID
         """
-        current_id = self.next_doc_id
-        self.next_doc_id += 1
-        return current_id
+        return uuid.uuid4()
 
     def _recalculate_terms(self, terms):
         """
@@ -62,6 +61,11 @@ class Index:
         terms_to_recalculate = set()
         for document in batch:
             doc_terms = set(document.tokens)
+
+            # if there is already document with the same id remove it
+            if document.doc_id in self.documents:
+                self.delete_document(document.doc_id)
+
             for term in doc_terms:
                 if term not in self.inverted_idx:
                     self.inverted_idx[term] = TermInfo(document, term)
@@ -92,7 +96,7 @@ class Index:
         """
         document_id = document.docId if document.docId else self.get_next_doc_id()
         document_tokens = self.config.preprocessor.get_tokens(document.text)
-        return Document(document_id, document_tokens, document.text, document.additionalProperties)
+        return Document(document_id, document_tokens, document.text, datetime.now(), document.additionalProperties)
 
     def preprocess_batch(self, documents: List[DocumentDto]):
         """
@@ -102,7 +106,7 @@ class Index:
         """
         return [self.preprocess_document(document) for document in documents]
 
-    def delete_batch(self, batch: List[int]):
+    def delete_batch(self, batch: List[uuid.UUID]):
         """
         Deletes documents from the index
         :param batch: list of document indices.py to delete
@@ -125,10 +129,9 @@ class Index:
             # Delete the document
             del self.documents[doc_id]
 
-        # Recalculate all terms that were changed
         self._recalculate_terms(terms_to_recalculate)
 
-    def delete_document(self, doc_id: int):
+    def delete_document(self, doc_id: uuid.UUID):
         """
         Deletes a single document from the index
         :param doc_id: Document to delete
@@ -177,7 +180,7 @@ class Index:
 
         if model == ModelVariant.BOOL:
             # For boolean model return score as NaN
-            return [{'score': float('nan'), 'document': DocumentDto.from_domain_object(item)} for item in search_result]
+            return [{'score': None, 'document': DocumentDto.from_domain_object(item)} for item in search_result]
 
         # Else return score and document
         return [{'score': item['score'], 'document': DocumentDto.from_domain_object(item['document'])} for item in
@@ -204,7 +207,7 @@ class Index:
 
         # Map to DocumentDto and let the index preprocess the text
         return self.preprocess_document(
-            DocumentDto(docId=None, text=doc_dict['text'],
+            DocumentDto(docId=doc_dict['docId'] if 'docId' in doc_dict else None, text=doc_dict['text'],
                         additionalProperties={prop: val for prop, val in doc_dict.items() if prop != 'text'}))
 
     def add_json_to_index(self, upload_file: UploadFile) -> List[Document]:

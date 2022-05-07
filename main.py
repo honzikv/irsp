@@ -6,6 +6,7 @@ from fastapi import FastAPI
 # Main script which launches the api
 from starlette.middleware.cors import CORSMiddleware
 
+from create_sample_index import create_dummy_idx
 from nltk_dependencies import setup_dependencies
 from src.api.documents import documents_router
 from src.api.indices import index_router
@@ -22,6 +23,9 @@ logger = logging.getLogger(__name__)
 nltk_resources_dir = os.path.join(os.getcwd(), 'resources\\nltk\\')
 nltk.data.path.append(nltk_resources_dir)
 logger.info(f'NLTK resources directory set to: {nltk_resources_dir}')
+
+# Create sample index
+create_dummy_idx()
 
 app = FastAPI()
 

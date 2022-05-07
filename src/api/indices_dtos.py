@@ -1,3 +1,4 @@
+import uuid
 from enum import Enum
 
 from pydantic.class_validators import Optional, List
@@ -58,7 +59,7 @@ class DocumentDto(Model):
     """
     Document DTO
     """
-    docId: Optional[int]
+    docId: Optional[uuid.UUID]
     text: str
     # Additional properties to the document
     additionalProperties: dict
