@@ -44,16 +44,20 @@ class BooleanModel(SearchModel):
         if isinstance(query, str):
             # If we end up with query that is a string this means that there will be either one or more words
             tokens = self.preprocessor.get_tokens(query)
-            if len(tokens) == 0: return None
-            # We can treat this as an AND expression and even
-            # if we only have one token we will get correct search results
+            if len(tokens) == 1:
+                return tokens[0]
+            if len(tokens) == 0:
+                return None
             return QueryItem(items=tokens, operator=BooleanOperator.AND)
 
         # Now we must have either list of strings / query items
         preprocessed_items = []
         for item in query.items:
             preprocessed_item = self._preprocess_query(item)
-            if preprocessed_item is None:
+            if isinstance(preprocessed_item, str):
+                if preprocessed_item == '':
+                    continue
+            elif preprocessed_item is None or preprocessed_item.is_empty():
                 continue
             preprocessed_items.append(preprocessed_item)
 

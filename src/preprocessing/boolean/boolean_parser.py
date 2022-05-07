@@ -39,6 +39,18 @@ class QueryItem:
                 items += f'{item}, '
         return items + ' }'
 
+    def is_empty(self):
+        if isinstance(self.items, str) and self.items == '':
+            return True
+        if isinstance(self.items, list) and len(self.items) == 0:
+            return True
+        for item in self.items:
+            if isinstance(item, str) and item == '' or isinstance(item, QueryItem) and item.is_empty():
+                continue
+            return False
+
+        return True
+
 
 class BooleanErrorListener(ErrorListener):
 
@@ -119,4 +131,3 @@ def parse_boolean_query(query: str):
     parser.addErrorListener(BooleanErrorListener())
     tree = parser.start()
     return BooleanQueryVisitor().visit(tree)
-
