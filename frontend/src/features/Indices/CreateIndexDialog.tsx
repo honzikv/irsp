@@ -23,7 +23,7 @@ import { showNotification } from '../Notification/notificationSlice'
 import { fetchIndices } from './indicesSlice'
 import DeleteIcon from '@mui/icons-material/Delete'
 import AttachmentIcon from '@mui/icons-material/Attachment'
-import AddIcon from '@mui/icons-material/Add';
+import AddIcon from '@mui/icons-material/Add'
 
 export interface CreateIndexDialogProps {
     maxWidth?: DialogProps['maxWidth']
@@ -184,7 +184,7 @@ const CreateIndexDialog: FunctionComponent<CreateIndexDialogProps> = ({
 
             <Dialog
                 open={open}
-                fullWidth={true}
+                fullWidth
                 onClose={onClose}
                 maxWidth={maxWidth || 'lg'}
             >
@@ -315,10 +315,14 @@ const CreateIndexDialog: FunctionComponent<CreateIndexDialogProps> = ({
                         </FormGroup>
                         <Divider sx={{ mt: 1 }} />
                         <Stack sx={{ my: 2 }} direction="column">
-                            {fileName ? (
+                            {fileName && (
                                 <Fragment>
                                     <Typography
-                                        sx={{ mr: 2, textOverflow: 'ellipsis', overflow: 'hidden' }}
+                                        sx={{
+                                            mr: 2,
+                                            textOverflow: 'ellipsis',
+                                            overflow: 'hidden',
+                                        }}
                                         color="text.secondary"
                                         align="right"
                                     >
@@ -340,9 +344,9 @@ const CreateIndexDialog: FunctionComponent<CreateIndexDialogProps> = ({
                                         </Button>
                                     </Stack>
                                 </Fragment>
-                            ) : null}
+                            )}
                             <Stack></Stack>
-                            {!fileName ? (
+                            {!fileName && (
                                 <Button
                                     variant="outlined"
                                     color="secondary"
@@ -360,7 +364,7 @@ const CreateIndexDialog: FunctionComponent<CreateIndexDialogProps> = ({
                                         onChange={onFileUpload}
                                     />
                                 </Button>
-                            ) : null}
+                            )}
                         </Stack>
                         <Stack
                             direction="row"

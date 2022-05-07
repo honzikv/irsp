@@ -78,6 +78,9 @@ class DocumentDto(Model):
 
 
 class IndexDto(Model):
+    """
+    Data transfer object for an index
+    """
     name: str
     models: List[str]
     nTerms: int
@@ -86,12 +89,18 @@ class IndexDto(Model):
 
 
 class ModelVariant(Enum):
+    """
+    Enum for model variants
+    """
     TFIDF = 'tfidf'
     BOOL = 'bool'
     TRANSFORMERS = 'transformers'
 
 
 class QueryDto(Model):
+    """
+    Data transfer object for query
+    """
     query: str
     topK: Optional[int]
     model: ModelVariant

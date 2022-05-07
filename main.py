@@ -7,7 +7,8 @@ from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
 from nltk_dependencies import setup_dependencies
-from src.api.indices import indices_router
+from src.api.documents import documents_router
+from src.api.indices import index_router
 
 # Download dependencies
 setup_dependencies()
@@ -45,6 +46,7 @@ async def say_hello(name: str):
     return {"message": f"Hello {name}"}
 
 
-app.include_router(indices_router)
+app.include_router(index_router)
+app.include_router(documents_router)
 
 logger.info('API is running')
