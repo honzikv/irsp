@@ -46,7 +46,7 @@ def add_document(index_name: str, dataFile: UploadFile):
         return {"success": False, "message": str(e)}
 
 
-def _save_document(index_name, documentDto):
+def _save_document(index_name, documentDto, update=True):
     """
     Saves a document to an index
     :param index_name:
@@ -58,7 +58,10 @@ def _save_document(index_name, documentDto):
         logger.info(f'Updating document {documentDto.id} in index {index_name}')
 
         document = index.get_document_from_dto(documentDto)
-        index.update_document(document)  # update the document
+        if update:
+            index.update_document(document)  # update the document
+        else:
+            index.add_document(document)
         return {"success": True, "message": f"Document was successfully updated"}
     except ValueError as e:
         return {"success": False, "message": str(e)}
@@ -84,7 +87,7 @@ def add_document(index_name: str, documentDto: DocumentDto):
     :param documentDto:
     :return:
     """
-    return _save_document(index_name, documentDto)
+    return _save_document(index_name, documentDto, update=False)
 
 
 @documents_router.delete('/{index_name}/documents/{doc_id}')

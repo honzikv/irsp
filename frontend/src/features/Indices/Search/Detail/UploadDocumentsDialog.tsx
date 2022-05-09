@@ -110,7 +110,7 @@ const UploadDocumentJsonDialog = () => {
                 alignItems="center"
             >
                 <Button
-                    startIcon={<AddIcon />}
+                    startIcon={<AttachmentIcon />}
                     variant="outlined"
                     color="primary"
                     onClick={showDialog}

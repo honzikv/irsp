@@ -31,6 +31,7 @@ import {
     setQuery,
     consumeDeleteSuccess,
 } from './indexSearchSlice'
+import ModifyDocumentDialog from './Detail/ModifyDocumentDialog'
 
 const initialValues = {
     query: '',
@@ -207,10 +208,14 @@ const IndexSearch = () => {
 
                         {name && (
                             <Stack
-                                alignSelf="stretch"
+                                alignSelf="flex-end"
                                 alignItems="flex-end"
+                                justifyContent="flex-end"
+                                direction="row"
+                                spacing={2}
                                 sx={{ my: 2 }}
                             >
+                                <ModifyDocumentDialog variant="create" />
                                 <UploadDocumentJsonDialog />
                             </Stack>
                         )}

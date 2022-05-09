@@ -17,6 +17,8 @@ import { DocumentDto } from '../../indexDtos'
 import JSONInput from 'react-json-editor-ajrm'
 import { localeEn } from '../../../Utils/JsonEditorLocale'
 import SaveIcon from '@mui/icons-material/Save'
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline'
+import EditIcon from '@mui/icons-material/Edit'
 
 export interface ModifyDocumentDialogProps {
     variant: 'modify' | 'create'
@@ -179,6 +181,7 @@ const ModifyDocumentDialog: FunctionComponent<ModifyDocumentDialogProps> = ({
             <Button
                 variant={config.variant}
                 size={config.size}
+                startIcon={variant === 'create' ? <AddCircleOutlineIcon /> : <EditIcon />}
                 onClick={() => setOpen(true)}
             >
                 {variant === 'create' ? 'Add New Document' : 'Modify'}
