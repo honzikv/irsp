@@ -1,11 +1,11 @@
 import json
 import logging
-from typing import List
+from typing import List, Dict
 
 from fastapi import APIRouter, Form, UploadFile, File
 from pydantic.class_validators import Optional
 
-from src.api.indices_dtos import DocumentDto, IndexConfigDto, PreprocessorConfigDto, QueryDto
+from src.api.indices_dtos import DocumentDto, IndexConfigDto, PreprocessorConfigDto, QueryDto, DocumentSearchResultDto
 from src.index.index import add_index, Index, delete_index, get_index
 from src.index.index import get_all_indices as _get_all_indices
 
@@ -88,7 +88,7 @@ def get_all_indices():
 
 
 @index_router.post('/{index_name}/search')
-def search(index_name: str, query_dto: QueryDto):
+def search(index_name: str, query_dto: QueryDto) -> dict[str, DocumentSearchResultDto | bool] | dict[str, str | bool]:
     """
     Searches an index
     :param index_name: Name of the index

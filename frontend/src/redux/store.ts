@@ -4,14 +4,20 @@ import themeReducer from '../features/theme/themeSlice'
 import indicesReducer from '../features/Indices/indicesSlice'
 import { persistStore } from 'redux-persist'
 import notificationReducer from '../features/Notification/notificationSlice'
+import indexSearchReducer from '../features/Indices/Search/indexSearchSlice'
+import { composeWithDevTools } from 'redux-devtools-extension'
+
+// Redux Devtools
+const composeEnhancers = composeWithDevTools({})
 
 const store = createStore(
     combineReducers({
         indices: indicesReducer,
         theme: themeReducer,
         notification: notificationReducer,
+        indexSearch: indexSearchReducer,
     }),
-    applyMiddleware(thunk)
+    composeEnhancers(applyMiddleware(thunk))
 )
 
 export default store

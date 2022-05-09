@@ -61,26 +61,34 @@ class DocumentDto(Model):
     Document DTO
     """
     title: Optional[str]
-    docId: Optional[str]
+    id: Optional[str]
     date: Optional[datetime]
     text: str
     # Additional properties to the document
     additionalProperties: dict
+    score: Optional[float]
 
     @staticmethod
-    def from_domain_object(document: Document):
+    def from_domain_object(document: Document, score: Optional[float] = None):
         """
         Converts a Document object to a DTO
         :param document: Document object
+        :param score: score of the document
         :return: DocumentDto
         """
         return DocumentDto(
-            docId=document.doc_id,
+            id=document.id,
             text=document.text,
             title=document.title,
             date=document.date,
             additionalProperties=document.properties,
+            score=score,
         )
+
+
+class DocumentSearchResultDto(Model):
+    documents: List[DocumentDto]
+    stopwords: Optional[List[str]]
 
 
 class IndexDto(Model):

@@ -10,7 +10,7 @@ import { useSelector } from 'react-redux'
 import { RootState } from './redux/store'
 import { useEffect, useState } from 'react'
 import Notification from './features/Notification/Notification'
-import IndexSearch from './features/Indices/Detail/IndexSearch'
+import IndexSearch from './features/Indices/Search/IndexSearch'
 
 const App = () => {
 

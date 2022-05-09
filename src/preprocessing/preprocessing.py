@@ -83,8 +83,8 @@ class Preprocessor:
         self.stemmer = stemmers[self.config.lang]
         self.lemmatizer = lemmatizers[self.config.lang]
         self.stopwords = {
-            'en': stopwords.words('english'),
-            'cs': stopwords.words('czech')
+            'en': set(stopwords.words('english')),
+            'cs': set(stopwords.words('czech'))
         }
 
     def get_tokens(self, text: str, return_detected_stopwords=False) -> Union[list, Tuple[list, set]]:
@@ -92,6 +92,7 @@ class Preprocessor:
         Returns all tokens found in the text
         :param text: text to be processed
         :return: list of terms
+        :param return_detected_stopwords:
         """
 
         # Lowercase
@@ -110,10 +111,11 @@ class Preprocessor:
         text = word_tokenize(text, language=self.config.lang_full)
 
         # Remove stopwords
-        detected_stopwords = []  # this is only populated if return_detected_stopwords is set to True
+        detected_stopwords = set()  # this is only populated if return_detected_stopwords is set to True
         if self.config.remove_stopwords:
             if return_detected_stopwords:
-                text, detected_stopwords = self._remove_stopwords(text, return_detected_stopwords=True)
+                text, stopwords = self._remove_stopwords(text, return_detected_stopwords=True)
+                detected_stopwords.update(stopwords)
             else:
                 text = self._remove_stopwords(text)
 
@@ -126,11 +128,14 @@ class Preprocessor:
                 tokens.append(self.lemmatizer.lemmatize(token))
 
         if self.config.remove_accents_after_stemming:
-            return [self._remove_accents(token) for token in tokens]
+            tokens = [self._remove_accents(token) for token in tokens]
 
         if return_detected_stopwords:
             # Return tuple of tokens and detected stopwords if return_detected_stopwords is set to True
+            if len(detected_stopwords) != 0:
+                logger.debug(f'Detected stopwords: {detected_stopwords}')
             return tokens, detected_stopwords
+
         # Otherwise just return list of tokens
         return tokens
 

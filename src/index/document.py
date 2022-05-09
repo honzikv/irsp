@@ -21,7 +21,7 @@ class Document:
         """
         if additional_properties is None:
             additional_properties = {}
-        self.doc_id = doc_id
+        self.id = doc_id
         self.tokens = tokens
         self.title = title
         self.text = text
@@ -30,7 +30,7 @@ class Document:
         self.properties = additional_properties
 
     def __str__(self):
-        return f'Document:\n\tid: {self.doc_id}\n\ttokens: {self.tokens}'
+        return f'Document:\n\tid: {self.id}\n\ttokens: {self.tokens}'
 
     @property
     def bow(self):

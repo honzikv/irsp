@@ -40,7 +40,7 @@ def tfidf_vectorize_document(terms: Dict[str, TermInfo], document: Document) -> 
     dim = 0
     for term, term_info in terms.items():
         if term in document.bow:
-            vector[dim] = term_info.documents[document.doc_id].tfidf
+            vector[dim] = term_info.documents[document.id].tfidf
         dim += 1
 
     return vector
@@ -100,7 +100,7 @@ class TfIdfModel(SearchModel):
             for document_info in inverted_idx[term].documents.values():
                 document = document_info.document
                 if document not in documents:
-                    documents[document.doc_id] = document
+                    documents[document.id] = document
 
         logger.info(f"Found {len(documents)} documents for terms {terms}")
 
@@ -115,7 +115,7 @@ class TfIdfModel(SearchModel):
             results.append({"score": cosine_similarity(query_vector, doc_vec), "document": document})
 
         # Sort the results by score descending
-        results.sort(key=lambda x: x["score"], reverse=True)
+        results.sort(key=lambda x: x['score'], reverse=True)
         return results
 
     def recalculate_terms(self, terms: List[TermInfo], n_docs: int):

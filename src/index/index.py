@@ -7,7 +7,7 @@ from typing import List, Dict
 
 from fastapi import UploadFile
 
-from src.api.indices_dtos import DocumentDto, IndexDto, ModelVariant, QueryDto
+from src.api.indices_dtos import DocumentDto, IndexDto, ModelVariant, QueryDto, DocumentSearchResultDto
 from src.index.document import Document
 from src.index.index_config import IndexConfig
 from src.index.term_info import TermInfo
@@ -67,8 +67,8 @@ class Index:
             doc_terms = set(document.tokens)
 
             # if there is already document with the same id remove it
-            if document.doc_id in self.documents:
-                self.delete_document(document.doc_id)
+            if document.id in self.documents:
+                self.delete_document(document.id)
 
             for term in doc_terms:
                 if term not in self.inverted_idx:
@@ -79,7 +79,7 @@ class Index:
                 terms_to_recalculate.add(self.inverted_idx[term])
 
             # Add document to the index
-            self.documents[document.doc_id] = document
+            self.documents[document.id] = document
 
         # Recalculate all terms that were changed
         logger.info('Recalculating terms')
@@ -101,7 +101,7 @@ class Index:
         :param document: DocumentDto object
         :return: preprocessed Document object
         """
-        document_id = document.docId if document.docId else self.get_next_doc_id()
+        document_id = document.id if document.id else self.get_next_doc_id()
         text = document.text
         if document.title:  # title is optional so it may be None
             text += document.title
@@ -123,7 +123,7 @@ class Index:
         result: List[Document] = [None] * len(documents)
         for i, document in enumerate(documents):
             result[i] = self.preprocess_document(document)
-            logger.info('Preprocessed document id: %s', document.docId)
+            logger.info('Preprocessed document id: %s', document.id)
             count += 1
             logger.info('Preprocessed %s documents', count)
         logger.info('Batch preprocessed, total documents in index: %s', len(self.documents))
@@ -147,7 +147,7 @@ class Index:
             for term in doc_terms:
                 terms_to_recalculate.add(term)
                 term_info = self.inverted_idx[term]
-                term_info.remove_document(document.doc_id)
+                term_info.remove_document(document.id)
 
             # Delete the document
             del self.documents[doc_id]
@@ -172,7 +172,7 @@ class Index:
             return
 
         for document in documents:
-            self.documents[document.doc_id] = document
+            self.documents[document.id] = document
 
             # Get bag of words of the document - this will be used to assign documents to terms
             bow = document.bow
@@ -189,7 +189,7 @@ class Index:
         for term_info in self.inverted_idx.values():
             calculate_tfidf(term_info, n_docs)
 
-    def search(self, query_dto: QueryDto) -> list:
+    def search(self, query_dto: QueryDto) -> DocumentSearchResultDto:
         """
         Performs search on all models
         :param query_dto: QueryDto object
@@ -198,16 +198,18 @@ class Index:
         query, model, n_items = query_dto.query, query_dto.model, query_dto.topK
         # Model variant gets validated in the controller via Pydantic, so we can assume it's valid
         search_model = self.models[model.value]
-
         search_result = search_model.search(query, n_items)
 
         if model == ModelVariant.BOOL:
-            # For boolean model return score as NaN
-            return [{'score': None, 'document': DocumentDto.from_domain_object(item)} for item in search_result]
+            return DocumentSearchResultDto(
+                documents=[DocumentDto.from_domain_object(item) for item in search_result[0]],
+                stopwords=search_result[1],
+            )
 
-        # Else return score and document
-        return [{'score': item['score'], 'document': DocumentDto.from_domain_object(item['document'])} for item in
-                search_result]
+        # Otherwise all other models return list of dictionaries that contain the document domain object and score
+        return DocumentSearchResultDto(
+            documents=[DocumentDto.from_domain_object(item['document'], item['score']) for item in search_result],
+        )
 
     def to_dto(self, n_example_docs=10) -> IndexDto:
         """
@@ -215,7 +217,8 @@ class Index:
         :return: instance of IndexDto
         """
         n_example_docs = n_example_docs if len(self.documents) > n_example_docs else len(self.documents)
-        example_docs = [DocumentDto.from_domain_object(doc) for doc in list(self.documents.values())[:n_example_docs]]
+        example_docs = [DocumentDto.from_domain_object(doc) for doc in
+                        list(self.documents.values())[:n_example_docs]]
         return IndexDto(
             name=self.config.name,
             models=list(self.models.keys()),
@@ -229,7 +232,7 @@ class Index:
             raise ValueError('Document text cannot be empty')
 
         # Map to DocumentDto and let the index preprocess the text
-        return DocumentDto(docId=doc_dict['docId'] if 'docId' in doc_dict else None, text=doc_dict['text'],
+        return DocumentDto(id=doc_dict['id'] if 'id' in doc_dict else None, text=doc_dict['text'],
                            additionalProperties={prop: val for prop, val in doc_dict.items() if prop != 'text'})
 
     def add_json_to_index(self, upload_file: UploadFile) -> List[Document]:

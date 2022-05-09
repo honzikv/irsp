@@ -17,7 +17,7 @@ class TermInfo:
         """
         # Documents are stored as a dictionary with document id as key and document as value
         doc_term_frequency = document.bow[term_name]
-        self.documents: Dict[str, DocumentInfo] = {document.doc_id: DocumentInfo(document, doc_term_frequency)}
+        self.documents: Dict[str, DocumentInfo] = {document.id: DocumentInfo(document, doc_term_frequency)}
         self.collection_frequency = doc_term_frequency
         self.document_frequency = 1
 
@@ -30,11 +30,11 @@ class TermInfo:
 
         # First we need to check whether a document
         # with the same id already exists in the dictionary
-        if document.doc_id in self.documents:
+        if document.id in self.documents:
             # Remove the old document
-            old_document_info = self.documents[document.doc_id]
+            old_document_info = self.documents[document.id]
             self.document_frequency -= 1  # this is just to make the code cleaner without else statement
-            del self.documents[document.doc_id]
+            del self.documents[document.id]
 
             # Recalculate collection frequency
             self.collection_frequency -= old_document_info.term_frequency
@@ -43,7 +43,7 @@ class TermInfo:
         term_frequency = document.bow[term_name]
         self.collection_frequency += term_frequency
         document_info = DocumentInfo(document, term_frequency)
-        self.documents[document.doc_id] = document_info
+        self.documents[document.id] = document_info
         self.document_frequency += 1
 
     def remove_document(self, document_id: str):

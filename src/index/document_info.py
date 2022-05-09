@@ -20,7 +20,7 @@ class DocumentInfo:
     def __str__(self):
         return f"""
                 DocumentStats:
-                    document_id: {self.document.doc_id}
+                    document_id: {self.document.id}
                     # term occurrences: {self.term_frequency}
                     tfidf: {self.tfidf}"""
 

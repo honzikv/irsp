@@ -1,5 +1,5 @@
 import logging
-from typing import List, Set, Dict, Union
+from typing import List, Set, Dict, Union, Tuple
 
 from src.index.document import Document
 from src.index.term_info import TermInfo
@@ -23,7 +23,7 @@ class BooleanModel(SearchModel):
         self.preprocessor = preprocessor
         self.documents = index.documents
 
-    def search(self, query: str, n_items=None) -> List[Document]:
+    def search(self, query: str, n_items=None) -> Tuple[List[Document], Set[str]]:
         """
         Search for documents matching the query
         :param query: a boolean query
@@ -31,18 +31,24 @@ class BooleanModel(SearchModel):
         :return: List of all matching documents
         """
         try:
-            preprocessed_query = self._preprocess_query(parse_boolean_query(query))
-        except ValueError:
+            detected_stopwords = set()
+            preprocessed_query = self._preprocess_query(parse_boolean_query(query), detected_stopwords)
+        except ValueError as e:
+            logger.debug(str(e))
             raise ValueError('Query is not valid')
+
+        if preprocessed_query is None:
+            return [], detected_stopwords
 
         # DFS traverse the parsed query
         document_ids = self._dfs_traverse(preprocessed_query)
-        return [self.documents[doc_id] for doc_id in document_ids]
+        return [self.documents[doc_id] for doc_id in document_ids], detected_stopwords
 
-    def _preprocess_query(self, query: Union[QueryItem, str]):
+    def _preprocess_query(self, query: Union[QueryItem, str], detected_stopwords: Set[str] = None):
         if isinstance(query, str):
             # If we end up with query that is a string this means that there will be either one or more words
-            tokens = self.preprocessor.get_tokens(query)
+            tokens, stopwords = self.preprocessor.get_tokens(query, True)
+            detected_stopwords.update(stopwords)
             if len(tokens) == 1:
                 return tokens[0]
             if len(tokens) == 0:
@@ -52,7 +58,7 @@ class BooleanModel(SearchModel):
         # Now we must have either list of strings / query items
         preprocessed_items = []
         for item in query.items:
-            preprocessed_item = self._preprocess_query(item)
+            preprocessed_item = self._preprocess_query(item, detected_stopwords)
             if isinstance(preprocessed_item, str):
                 if preprocessed_item == '':
                     continue
@@ -63,58 +69,48 @@ class BooleanModel(SearchModel):
         query.items = preprocessed_items
         return query
 
-    def _find_documents_for_token(self, token: str) -> Set[str]:
+    def _find_documents_matching_term(self, term) -> Set[str]:
         """
-        Find all documents containing the token
+        Find all documents containing the term
         :param token: token to search
-        :return: List of ids of all matching documents
+        :return:
         """
-        # Preprocess the token into term(s)
-        terms = self.preprocessor.get_tokens(token)
-
-        # Iterate over "each" term - there should really be only one but we need to treat this as a list
-        docs = set()
-        for term in terms:
-            # Get the term info
-            if term not in self.inverted_idx:
-                continue  # if there is none simply continue
-            term_info = self.inverted_idx[term]
-            docs.update([x.document.doc_id for x in term_info.documents.values()])
-
-        return docs
+        return set(self.inverted_idx[term].documents.keys() if term in self.inverted_idx else [])
 
     def _dfs_traverse(self, query: Union[QueryItem, str]) -> Set[str]:
         """
         DFS traversal
-        :param items: list of QueryItems
+        :param query: query item or a string
+        :param detected_stopwords: set of all detected stopwords that gets updated if any new stopwords are found
         :return: List of ids of all matching documents
         """
         if isinstance(query, str):
-            return self._find_documents_for_token(query)
+            return self._find_documents_matching_term(query)
 
         items = query.items
         # Check whether the parameter is a string
         if isinstance(items, str):
-            return self._find_documents_for_token(items)
+            return self._find_documents_matching_term(items)
 
         # Else iterate over the list
-        docs = set()
+        document_ids = set()
         for idx, item in enumerate(items):
             # Find matching documents for item
-            matching_docs = self._find_documents_for_token(item) if isinstance(item, str) else self._dfs_traverse(item)
+            matching_docs = self._find_documents_matching_term(item) if isinstance(item, str) else self._dfs_traverse(
+                item)
 
             # If the operation is AND we need to intersect the sets
             if query.operator == BooleanOperator.AND:
                 # If the index is 0 the set is empty so fill it with the docs for first item
-                docs = matching_docs if idx == 0 else docs.intersection(matching_docs)
+                document_ids = matching_docs if idx == 0 else document_ids.intersection(matching_docs)
                 continue
 
             # If the operation is OR we need to union the sets
             if query.operator == BooleanOperator.OR:
-                docs = docs.union(matching_docs)
+                document_ids = document_ids.union(matching_docs)
                 continue
 
             # Otherwise we need a set that contains everything except the ids we have found for current item
-            docs = set(self.documents.keys()).difference(matching_docs)
+            document_ids = set(self.documents.keys()).difference(matching_docs)
 
-        return docs
+        return document_ids

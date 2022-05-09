@@ -19,6 +19,7 @@ export interface DocumentDto {
     docId: string
     text: string
     additionalProperties: any
+    score?: number
 }
 
 export interface IndexDto {
@@ -30,8 +31,8 @@ export interface IndexDto {
 }
 
 export interface DocumentSearchResultDto {
-    score?: number,
-    document: DocumentDto
+    documents: DocumentDto[]
+    stopwords?: string[]
 }
 
 export interface QueryDto {

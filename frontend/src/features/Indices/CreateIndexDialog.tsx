@@ -24,6 +24,7 @@ import { fetchIndices } from './indicesSlice'
 import DeleteIcon from '@mui/icons-material/Delete'
 import AttachmentIcon from '@mui/icons-material/Attachment'
 import AddIcon from '@mui/icons-material/Add'
+import { RootState } from '../../redux/store'
 
 export interface CreateIndexDialogProps {
     maxWidth?: DialogProps['maxWidth']
