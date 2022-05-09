@@ -13,3 +13,4 @@ deserializer/czechData.json
 deserializer/target/classes/TREC/topicData.bin
 deserializer/target/classes/TREC/czechData.bin
 deserializer/src/main/resources/TREC/topicData.bin
+deserializer/target

@@ -239,7 +239,13 @@ class Index:
             exampleDocuments=example_docs
         )
 
-    def _parse_document_from_dict(self, doc_dict: dict) -> DocumentDto:
+    @staticmethod
+    def _parse_document_from_dict(doc_dict: dict) -> DocumentDto:
+        """
+        Parses a document from a dictionary
+        :param doc_dict:
+        :return:
+        """
         if 'text' not in doc_dict:
             raise ValueError('Document text cannot be empty')
 
