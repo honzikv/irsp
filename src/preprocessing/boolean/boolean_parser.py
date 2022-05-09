@@ -28,6 +28,10 @@ class QueryItem:
         self.operator = operator
 
     def __str__(self):
+        """
+        Returns string representation of the query item
+        :return:
+        """
         if isinstance(self.items, str):
             return '{ item: ' + f'{self.items} {self.operator.name}' + '}'
 
@@ -38,6 +42,22 @@ class QueryItem:
             else:
                 items += f'{item}, '
         return items + ' }'
+
+    def is_empty(self):
+        """
+        Returns True if the query item is empty
+        :return:
+        """
+        if isinstance(self.items, str) and self.items == '':
+            return True
+        if isinstance(self.items, list) and len(self.items) == 0:
+            return True
+        for item in self.items:
+            if isinstance(item, str) and item == '' or isinstance(item, QueryItem) and item.is_empty():
+                continue
+            return False
+
+        return True
 
 
 class BooleanErrorListener(ErrorListener):
@@ -119,4 +139,3 @@ def parse_boolean_query(query: str):
     parser.addErrorListener(BooleanErrorListener())
     tree = parser.start()
     return BooleanQueryVisitor().visit(tree)
-

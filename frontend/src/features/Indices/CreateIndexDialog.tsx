@@ -1,4 +1,4 @@
-import { ChangeEvent, Fragment, FunctionComponent, useState } from 'react'
+import { ChangeEvent, Fragment, FunctionComponent, useEffect, useState } from 'react'
 import Dialog, { DialogProps } from '@mui/material/Dialog'
 import {
     Button,
@@ -18,12 +18,13 @@ import { useFormik } from 'formik'
 import * as yup from 'yup'
 import Select, { SelectChangeEvent } from '@mui/material/Select'
 import axiosInstance from '../../conf/axios'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { showNotification } from '../Notification/notificationSlice'
 import { fetchIndices } from './indicesSlice'
 import DeleteIcon from '@mui/icons-material/Delete'
 import AttachmentIcon from '@mui/icons-material/Attachment'
-import AddIcon from '@mui/icons-material/Add';
+import AddIcon from '@mui/icons-material/Add'
+import { RootState } from '../../redux/store'
 
 export interface CreateIndexDialogProps {
     maxWidth?: DialogProps['maxWidth']
@@ -34,12 +35,21 @@ const CreateIndexDialog: FunctionComponent<CreateIndexDialogProps> = ({
 }) => {
     const availableLanguages = ['en', 'cs']
     const [open, setOpen] = useState(false)
-    const [submitButtonEnabled, setSubmitButtonEnabled] = useState(true)
     const [fileName, setFileName] = useState<string | undefined>(undefined)
+    const loading = useSelector((state: RootState) => state.indices.loading)
+
+    useEffect(() => {
+        if (loading) {
+            setOpen(true)
+        }
+    }, [loading])
 
     const dispatch = useDispatch()
 
     const hideDialog = () => {
+        if (loading) {
+            return
+        }
         setOpen(false)
     }
 
@@ -73,7 +83,6 @@ const CreateIndexDialog: FunctionComponent<CreateIndexDialogProps> = ({
         },
         validationSchema,
         onSubmit: async (values, { resetForm }) => {
-            setSubmitButtonEnabled(false)
             const jsonBody = {
                 name: values.name,
                 lowercase: values.lowercase,
@@ -142,7 +151,6 @@ const CreateIndexDialog: FunctionComponent<CreateIndexDialogProps> = ({
 
             // Always fetch new indices
             dispatch(fetchIndices())
-            setSubmitButtonEnabled(true)
         },
     })
 
@@ -184,7 +192,7 @@ const CreateIndexDialog: FunctionComponent<CreateIndexDialogProps> = ({
 
             <Dialog
                 open={open}
-                fullWidth={true}
+                fullWidth
                 onClose={onClose}
                 maxWidth={maxWidth || 'lg'}
             >
@@ -315,10 +323,14 @@ const CreateIndexDialog: FunctionComponent<CreateIndexDialogProps> = ({
                         </FormGroup>
                         <Divider sx={{ mt: 1 }} />
                         <Stack sx={{ my: 2 }} direction="column">
-                            {fileName ? (
+                            {fileName && (
                                 <Fragment>
                                     <Typography
-                                        sx={{ mr: 2, textOverflow: 'ellipsis', overflow: 'hidden' }}
+                                        sx={{
+                                            mr: 2,
+                                            textOverflow: 'ellipsis',
+                                            overflow: 'hidden',
+                                        }}
                                         color="text.secondary"
                                         align="right"
                                     >
@@ -340,9 +352,9 @@ const CreateIndexDialog: FunctionComponent<CreateIndexDialogProps> = ({
                                         </Button>
                                     </Stack>
                                 </Fragment>
-                            ) : null}
+                            )}
                             <Stack></Stack>
-                            {!fileName ? (
+                            {!fileName && (
                                 <Button
                                     variant="outlined"
                                     color="secondary"
@@ -360,7 +372,7 @@ const CreateIndexDialog: FunctionComponent<CreateIndexDialogProps> = ({
                                         onChange={onFileUpload}
                                     />
                                 </Button>
-                            ) : null}
+                            )}
                         </Stack>
                         <Stack
                             direction="row"
@@ -370,7 +382,7 @@ const CreateIndexDialog: FunctionComponent<CreateIndexDialogProps> = ({
                             <Button
                                 type="submit"
                                 variant="contained"
-                                disabled={!submitButtonEnabled}
+                                disabled={loading}
                                 startIcon={<AddIcon />}
                             >
                                 Create Index

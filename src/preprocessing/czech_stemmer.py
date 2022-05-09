@@ -1,5 +1,4 @@
 import re
-import sys
 
 ''' Czech stemmer
 Copyright © 2010 Luís Gomes <luismsgomes@gmail.com>.

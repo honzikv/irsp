@@ -1,4 +1,6 @@
-from typing import List
+import logging
+import string
+from typing import List, Tuple, Union
 
 import unicodedata
 
@@ -9,6 +11,8 @@ from src.preprocessing.czech_stemmer import CzechStemmer
 
 supported_langs = ['en', 'cs']
 lang_full_mapping = {'en': 'english', 'cs': 'czech'}
+
+logger = logging.getLogger(__name__)
 
 # Supported stemmers
 stemmers = {
@@ -78,8 +82,12 @@ class Preprocessor:
         self.config = config
         self.stemmer = stemmers[self.config.lang]
         self.lemmatizer = lemmatizers[self.config.lang]
+        self.stopwords = {
+            'en': stopwords.words('english'),
+            'cs': stopwords.words('czech')
+        }
 
-    def get_tokens(self, text: str) -> list:
+    def get_tokens(self, text: str, return_detected_stopwords=False) -> Union[list, Tuple[list, set]]:
         """
         Returns all tokens found in the text
         :param text: text to be processed
@@ -96,14 +104,18 @@ class Preprocessor:
 
         # Remove punctuation
         if self.config.remove_punctuation:
-            text = text.translate(str.maketrans('', '', '!"#$%&\'()*+,./:;<=>?@[\\]^_`{|}~'))
+            text = text.translate(str.maketrans('', '', string.punctuation))
 
         # Tokenize
         text = word_tokenize(text, language=self.config.lang_full)
 
         # Remove stopwords
+        detected_stopwords = []  # this is only populated if return_detected_stopwords is set to True
         if self.config.remove_stopwords:
-            text = self._remove_stopwords(text)
+            if return_detected_stopwords:
+                text, detected_stopwords = self._remove_stopwords(text, return_detected_stopwords=True)
+            else:
+                text = self._remove_stopwords(text)
 
         # Use stemmer or lemmatizer
         tokens = []
@@ -116,6 +128,10 @@ class Preprocessor:
         if self.config.remove_accents_after_stemming:
             return [self._remove_accents(token) for token in tokens]
 
+        if return_detected_stopwords:
+            # Return tuple of tokens and detected stopwords if return_detected_stopwords is set to True
+            return tokens, detected_stopwords
+        # Otherwise just return list of tokens
         return tokens
 
     @staticmethod
@@ -129,10 +145,22 @@ class Preprocessor:
             'ASCII', 'ignore').decode('utf-8', 'ignore')
         return text
 
-    def _remove_stopwords(self, text: list) -> list:
+    def _remove_stopwords(self, text: list, return_detected_stopwords=False) -> Union[list, Tuple[list, set]]:
         """
         Removes stopwords from the text
         :param text: text to be processed
+        :param return_detected_stopwords: if true stopwords will be returned as well - the returned value will be a tuple
+        with first element being the list of tokens and second element being the set of stopwords
         :return: text without stopwords
         """
-        return [word for word in text if word not in stopwords.words(self.config.lang_full)]
+        if return_detected_stopwords:
+            tokens, detected_stopwords = [], []
+            for token in text:
+                if token in self.stopwords[self.config.lang]:
+                    detected_stopwords.append(token)
+                    continue
+                tokens.append(token)
+            return tokens, set(detected_stopwords)
+
+        # Otherwise simply return only list of words that are not stopwords
+        return [word for word in text if word not in self.stopwords[self.config.lang]]

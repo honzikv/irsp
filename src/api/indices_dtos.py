@@ -1,3 +1,5 @@
+from datetime import datetime
+import uuid
 from enum import Enum
 
 from pydantic.class_validators import Optional, List
@@ -58,7 +60,9 @@ class DocumentDto(Model):
     """
     Document DTO
     """
-    docId: Optional[int]
+    title: Optional[str]
+    docId: Optional[str]
+    date: Optional[datetime]
     text: str
     # Additional properties to the document
     additionalProperties: dict
@@ -73,25 +77,35 @@ class DocumentDto(Model):
         return DocumentDto(
             docId=document.doc_id,
             text=document.text,
+            title=document.title,
+            date=document.date,
             additionalProperties=document.properties,
         )
 
 
 class IndexDto(Model):
-    name: str
-    models: List[str]
-    nTerms: int
-    nDocs: int
-    exampleDocuments: List[DocumentDto]
+    """
+    Data transfer object for an index
+    """
+    name: str  # name of the index
+    nTerms: int  # number of terms in the index
+    nDocs: int  # number of documents in the index
+    exampleDocuments: List[DocumentDto]  # list of example documents
 
 
 class ModelVariant(Enum):
+    """
+    Enum for model variants
+    """
     TFIDF = 'tfidf'
     BOOL = 'bool'
     TRANSFORMERS = 'transformers'
 
 
 class QueryDto(Model):
-    query: str
-    topK: Optional[int]
-    model: ModelVariant
+    """
+    Data transfer object for query
+    """
+    query: str  # query string
+    topK: Optional[int]  # number of results to return
+    model: ModelVariant  # model variant

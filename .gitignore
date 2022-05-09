@@ -6,3 +6,10 @@ src/api/__pycache__
 frontend/yarn.lock
 __pycache__
 resources/nltk
+resources/trec/topicData.bin
+resources/trec/czechData.bin
+deserializer/topicData.json
+deserializer/czechData.json
+deserializer/target/classes/TREC/topicData.bin
+deserializer/target/classes/TREC/czechData.bin
+deserializer/src/main/resources/TREC/topicData.bin
