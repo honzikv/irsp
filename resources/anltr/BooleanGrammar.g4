@@ -9,7 +9,7 @@ LPAR: '(';
 RPAR: ')';
 WHITESPACE: [\r\t ]+;
 
-QUERY_TERM: [A-Za-z0-9.*]+;
+QUERY_TERM: [A-Za-z0-9\u0080-\uFFFF]+;
 
 start: expression;
 

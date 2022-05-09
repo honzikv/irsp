@@ -11,9 +11,9 @@ import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from '../../redux/store'
 import ContentLoading from '../Utils/ContentLoading'
 import CreateIndexDialog from './CreateIndexDialog'
-import IndexCardDetail from './IndexCardDetail'
 import IndicesOverview from './IndicesOverview'
 import { consumeError, fetchIndices } from './indicesSlice'
+import IndexList from './List/IndexList'
 
 const Indices = () => {
     const dispatch = useDispatch()
@@ -52,7 +52,7 @@ const Indices = () => {
             <Typography sx={{ mb: 3 }} variant="h3" fontWeight="bold">
                 Indices
             </Typography>
-            {loading ? <ContentLoading /> : null}
+            {loading && <ContentLoading />}
             {!loading && (
                 <Fragment>
                     {!showErr && <CreateIndexDialog maxWidth="lg" />}
@@ -86,22 +86,7 @@ const Indices = () => {
                     <Grid container>
                         <Grid item xs={12} md={8}>
                             <Stack direction="column" spacing={2}>
-                                {[...indices]
-                                    .sort((a, b) =>
-                                        a.name.localeCompare(b.name)
-                                    )
-                                    .map((index, idx) => (
-                                        <IndexCardDetail
-                                            key={idx}
-                                            name={index.name}
-                                            nTerms={index.nTerms}
-                                            nDocs={index.nDocs}
-                                            models={index.models}
-                                            exampleDocuments={
-                                                index.exampleDocuments
-                                            }
-                                        />
-                                    ))}
+                                <IndexList />
                             </Stack>
                         </Grid>
                         <Grid item xs={12} md={4}>

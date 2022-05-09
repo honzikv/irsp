@@ -105,7 +105,8 @@ class TfIdfModel(SearchModel):
         logger.info(f"Found {len(documents)} documents for terms {terms}")
 
         # Get vector representation for query
-        query_vector = tfidf_vectorize_query(inverted_idx, Document(-1, tokens, ''), self.n_docs)
+        query_vector = tfidf_vectorize_query(inverted_idx, Document(doc_id='', tokens=tokens, title='', text=''),
+                                             self.n_docs)
 
         # Calculate the cosine similarity for each document
         results = []

@@ -1,3 +1,5 @@
+import { v4 as UUID } from 'uuid';
+
 export interface PreprocessorConfigDto {
     lowercase: boolean
     removeAccentsBeforeStemming: boolean
@@ -14,7 +16,7 @@ export interface IndexConfigDto {
 }
 
 export interface DocumentDto {
-    docId: number
+    docId: string
     text: string
     additionalProperties: any
 }

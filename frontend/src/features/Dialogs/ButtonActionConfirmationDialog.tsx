@@ -22,6 +22,7 @@ export interface ConfirmationDialogProps {
     title: string
     message: string
     StartIcon?: OverridableComponent<SvgIconTypeMap>
+    buttonSize: 'small' | 'medium' | 'large'
 }
 
 const ButtonActionConfirmationDialog: FunctionComponent<
@@ -36,6 +37,7 @@ const ButtonActionConfirmationDialog: FunctionComponent<
     cancelButtonColor,
     message,
     title,
+    buttonSize,
     StartIcon
 }) => {
     const [open, setOpen] = useState(false)
@@ -59,6 +61,7 @@ const ButtonActionConfirmationDialog: FunctionComponent<
                 color={triggerButtonColor}
                 onClick={() => setOpen(true)}
                 startIcon={StartIcon ? <StartIcon /> : <></>}
+                size={buttonSize}
             >
                 {triggerButtonText}
             </Button>

@@ -8,7 +8,7 @@ import {
 } from '@mui/material'
 import { Fragment } from 'react'
 import { FunctionComponent } from 'react'
-import { DocumentSearchResultDto } from '../indicesDtos'
+import { DocumentSearchResultDto } from '../indexDtos'
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
 import { DeleteOutline } from '@mui/icons-material'
 import DocumentDetail from './DocumentDetail'

@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axiosInstance from '../../conf/axios'
-import { IndexDto } from './indicesDtos'
+import { IndexDto } from './indexDtos'
 
 export interface IndicesState {
     indices: IndexDto[] // list of all obtained indices

@@ -8,7 +8,7 @@ import {
     Typography,
 } from '@mui/material'
 import { Fragment, FunctionComponent, useState } from 'react'
-import { DocumentDto, DocumentSearchResultDto } from '../indicesDtos'
+import { DocumentDto } from '../indexDtos'
 import InfoIcon from '@mui/icons-material/Info'
 import { Box } from '@mui/system'
 import JSONPretty from 'react-json-pretty'

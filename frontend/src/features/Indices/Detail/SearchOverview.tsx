@@ -1,6 +1,6 @@
 import { Button, Card, CardContent, Stack, Typography } from '@mui/material'
 import { Fragment, FunctionComponent, useState } from 'react'
-import { DocumentSearchResultDto } from '../indicesDtos'
+import { DocumentSearchResultDto } from '../indexDtos'
 import DownloadIcon from '@mui/icons-material/Download'
 
 export interface SearchOverviewProps {

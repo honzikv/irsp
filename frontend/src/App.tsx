@@ -10,26 +10,14 @@ import { useSelector } from 'react-redux'
 import { RootState } from './redux/store'
 import { useEffect, useState } from 'react'
 import Notification from './features/Notification/Notification'
-import IndexSearch from './features/Indices/Search/IndexSearch'
+import IndexSearch from './features/Indices/Detail/IndexSearch'
 
 const App = () => {
 
     const lightThemePalette = {
-        primary: {
-            main: '#2b2d42',
-        },
-        secondary: {
-            main: '#8d99ae',
-        },
     }
 
     const darkThemePalette = {
-        primary: {
-            main: '#15a2a2',
-        },
-        secondary: {
-            main: '#184e77',
-        },
     }
 
     const getPalette = (paletteMode: PaletteMode) => {

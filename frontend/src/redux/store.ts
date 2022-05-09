@@ -6,7 +6,11 @@ import { persistStore } from 'redux-persist'
 import notificationReducer from '../features/Notification/notificationSlice'
 
 const store = createStore(
-    combineReducers({ indices: indicesReducer, theme: themeReducer, notification: notificationReducer }),
+    combineReducers({
+        indices: indicesReducer,
+        theme: themeReducer,
+        notification: notificationReducer,
+    }),
     applyMiddleware(thunk)
 )
 

@@ -1,7 +1,10 @@
+import logging
 import shutil
 
 import nltk
 import os
+
+logger = logging.getLogger(__name__)
 
 
 # This script downloads necessary NLTK docs to the resources/nltk folder
@@ -24,3 +27,4 @@ def setup_dependencies():
 
 if __name__ == '__main__':
     setup_dependencies()
+    logger.info('NLTK dependencies are set up')
