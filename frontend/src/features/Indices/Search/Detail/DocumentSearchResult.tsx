@@ -15,6 +15,7 @@ import DocumentDetailDialog from './DocumentDetailDialog'
 import { deleteDocument } from '../indexSearchSlice'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from '../../../../redux/store'
+import ModifyDocumentDialog from './ModifyDocumentDialog'
 
 /**
  * Represents a search result for a document
@@ -89,6 +90,7 @@ const DocumentSearchResult = (document: DocumentDto) => {
                             {deleteLoading && <CircularProgress />}
                             Delete
                         </Button>
+                        <ModifyDocumentDialog variant="modify" documentId={document.id} />
                         <DocumentDetailDialog {...document} />
                     </Stack>
                 </CardContent>

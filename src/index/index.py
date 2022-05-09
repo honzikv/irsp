@@ -98,6 +98,17 @@ class Index:
         """
         self.add_batch([document])
 
+    def update_document(self, document: Document):
+        """
+        Updates a single document in the index
+        :param document:
+        :return:
+        """
+        if document.id not in self.documents:
+            raise ValueError(f'Document with id {document.id} does not exist')
+
+        self.add_batch([document])
+
     def preprocess_document(self, document: DocumentDto):
         """
         Preprocesses DocumentDto object. If the document does not have any id it will be assigned a new one
@@ -238,6 +249,20 @@ class Index:
             nDocs=len(self.documents),
             exampleDocuments=example_docs
         )
+
+    @staticmethod
+    def get_document_from_dto(document_dto: DocumentDto) -> Document:
+        """
+        Converts DocumentDto to Document
+        :param document_dto: DocumentDto object
+        :return: Document object
+        """
+        return Document(doc_id=document_dto.id,
+                        text=document_dto.text,
+                        title=document_dto.title,
+                        date=document_dto.date,
+                        additional_properties=document_dto.additionalProperties,
+                        tokens=[])
 
     @staticmethod
     def _parse_document_from_dict(doc_dict: dict) -> DocumentDto:

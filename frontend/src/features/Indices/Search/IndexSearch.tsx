@@ -20,7 +20,7 @@ import SearchIcon from '@mui/icons-material/Search'
 import DocumentSearchResult from './Detail/DocumentSearchResult'
 import SearchOverview from './SearchOverview'
 import { showNotification } from '../../Notification/notificationSlice'
-import CreateDocumentDialog from './Detail/CreateDocumentDialog'
+import UploadDocumentJsonDialog from './Detail/UploadDocumentsDialog'
 import { RootState } from '../../../redux/store'
 import {
     clear,
@@ -29,10 +29,8 @@ import {
     search,
     setIndex,
     setQuery,
-    deleteDocument,
     consumeDeleteSuccess,
 } from './indexSearchSlice'
-import { DocumentDto } from '../indexDtos'
 
 const initialValues = {
     query: '',
@@ -213,7 +211,7 @@ const IndexSearch = () => {
                                 alignItems="flex-end"
                                 sx={{ my: 2 }}
                             >
-                                <CreateDocumentDialog index={name} />
+                                <UploadDocumentJsonDialog />
                             </Stack>
                         )}
                         {searchResult && <SearchOverview />}

@@ -214,8 +214,7 @@ const CreateIndexDialog: FunctionComponent<CreateIndexDialogProps> = ({
                             }
                             helperText={
                                 formik.errors.name &&
-                                formik.touched.name &&
-                                formik.errors.name
+                                formik.touched.name
                             }
                         />
                         <FormControl fullWidth sx={{ mb: 2 }}>
