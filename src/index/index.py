@@ -98,17 +98,6 @@ class Index:
         """
         self.add_batch([document])
 
-    def update_document(self, document: Document):
-        """
-        Updates a single document in the index
-        :param document:
-        :return:
-        """
-        if document.id not in self.documents:
-            raise ValueError(f'Document with id {document.id} does not exist')
-
-        self.add_batch([document])
-
     def preprocess_document(self, document: DocumentDto):
         """
         Preprocesses DocumentDto object. If the document does not have any id it will be assigned a new one
@@ -116,11 +105,11 @@ class Index:
         :return: preprocessed Document object
         """
         document_id = document.id if document.id else self.get_next_doc_id()
-        text = document.text
+        processable_text = document.text
         if document.title:  # title is optional so it may be None
-            text += document.title
+            processable_text += ' ' + document.title
         logger.info(f'Preprocessing document id: {document_id}')
-        document_tokens = self.config.preprocessor.get_tokens(text)
+        document_tokens = self.config.preprocessor.get_tokens(processable_text)
         return Document(doc_id=document_id,
                         tokens=document_tokens,
                         title=document.title,
@@ -250,19 +239,13 @@ class Index:
             exampleDocuments=example_docs
         )
 
-    @staticmethod
-    def get_document_from_dto(document_dto: DocumentDto) -> Document:
+    def get_preprocessed_document_from_dto(self, document_dto: DocumentDto) -> Document:
         """
         Converts DocumentDto to Document
         :param document_dto: DocumentDto object
         :return: Document object
         """
-        return Document(doc_id=document_dto.id,
-                        text=document_dto.text,
-                        title=document_dto.title,
-                        date=document_dto.date,
-                        additional_properties=document_dto.additionalProperties,
-                        tokens=[])
+        return self.preprocess_document(document_dto)
 
     @staticmethod
     def _parse_document_from_dict(doc_dict: dict) -> DocumentDto:
