@@ -60,3 +60,10 @@ class TermInfo:
         self.collection_frequency -= document_info.term_frequency
         self.document_frequency -= 1
         del self.documents[document_id]
+
+    def is_empty(self):
+        """
+        Checks whether this object has references to any documents
+        :return: True if there are no references, False otherwise
+        """
+        return len(self.documents) == 0

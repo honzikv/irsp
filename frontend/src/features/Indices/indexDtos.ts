@@ -16,7 +16,8 @@ export interface IndexConfigDto {
 }
 
 export interface DocumentDto {
-    docId: string
+    title?: string
+    id: string
     text: string
     additionalProperties: any
     score?: number

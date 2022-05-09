@@ -31,7 +31,7 @@ def add_document(index_name: str, dataFile: UploadFile):
 
 
 @documents_router.delete('/{index_name}/documents/{doc_id}')
-def delete_document(index_name: str, doc_id: int):
+def delete_document(index_name: str, doc_id: str):
     """
     Deletes a document from an index
     :param index_name: Name of the index

@@ -1,4 +1,3 @@
-# dictionary of all indices.py
 import json
 import logging
 import uuid
@@ -37,14 +36,15 @@ class Index:
             'bool': BooleanModel(self, self.config.preprocessor)
         }
 
-    def get_next_doc_id(self):
+    @staticmethod
+    def get_next_doc_id() -> str:
         """
         Returns next document id to be used
         :return: str
         """
         return str(uuid.uuid4())
 
-    def _recalculate_terms(self, terms):
+    def _recalculate_terms(self, terms: List[TermInfo]):
         """
         Recalculates passed terms in the index
         :param terms: Iterable of TermInfo objects
@@ -76,13 +76,16 @@ class Index:
                 else:
                     self.inverted_idx[term].append_document(document, term)
 
-                terms_to_recalculate.add(self.inverted_idx[term])
+                terms_to_recalculate.add(term)
 
             # Add document to the index
             self.documents[document.id] = document
 
         # Recalculate all terms that were changed
         logger.info('Recalculating terms')
+
+        # Map to list of TermInfo objects
+        terms_to_recalculate = list(map(lambda x: self.inverted_idx[x], terms_to_recalculate))
         self._recalculate_terms(terms_to_recalculate)
         logger.info('Index updated, total documents in index: %s, total terms: %s', len(self.documents),
                     len(self.inverted_idx))
@@ -149,10 +152,19 @@ class Index:
                 term_info = self.inverted_idx[term]
                 term_info.remove_document(document.id)
 
+                # Delete the term if there are no more documents for it
+                if term_info.is_empty():
+                    del self.inverted_idx[term]
+
             # Delete the document
             del self.documents[doc_id]
 
-        self._recalculate_terms(terms_to_recalculate)
+        # Filter out deleted terms from the list
+        terms_to_recalculate = filter(lambda x: x in self.inverted_idx, terms_to_recalculate)
+        # Map keys to values
+        terms_to_recalculate = list(map(lambda x: self.inverted_idx[x], terms_to_recalculate))
+        self._recalculate_terms(
+            terms_to_recalculate)  # recalculate all terms that were changed and are still in the index
 
     def delete_document(self, doc_id: str):
         """
