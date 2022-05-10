@@ -66,10 +66,6 @@ class Index:
         for document in batch:
             doc_terms = set(document.tokens)
 
-            # if there is already document with the same id remove it
-            if document.id in self.documents:
-                self.delete_document(document.id)
-
             for term in doc_terms:
                 if term not in self.inverted_idx:
                     self.inverted_idx[term] = TermInfo(document, term)
@@ -77,6 +73,10 @@ class Index:
                     self.inverted_idx[term].append_document(document, term)
 
                 terms_to_recalculate.add(term)
+
+                # if there is already document with the same id remove it
+                if document.id in self.documents:
+                    self.delete_document(document.id)
 
             # Add document to the index
             self.documents[document.id] = document
