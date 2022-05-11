@@ -39,7 +39,7 @@ const initialValues = {
     // topK: 10,
 }
 
-// Detail component which shows the search bar, results and some configuration
+// Detail component which shows the search_model bar, results and some configuration
 const IndexSearch = () => {
     const dispatch = useDispatch()
 
@@ -52,7 +52,7 @@ const IndexSearch = () => {
         (state: RootState) => state.indexSearch.searchResult
     )
 
-    // Whether the search is loading something from the API
+    // Whether the search_model is loading something from the API
     const loading = useSelector((state: RootState) => state.indexSearch.loading)
     const err = useSelector((state: RootState) => state.indexSearch.err)
     const deleteLoading = useSelector(
@@ -96,7 +96,7 @@ const IndexSearch = () => {
     const formik = useFormik({
         initialValues,
         onSubmit: async (values) => {
-            dispatch(clearSearchResult()) // clear search result
+            dispatch(clearSearchResult()) // clear search_model result
             // set the query
             dispatch(
                 setQuery({

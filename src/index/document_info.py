@@ -10,17 +10,14 @@ class DocumentInfo:
         """
         Initializes new instance of DocumentInfo
         :param document: reference to the document
-        :param frequency: frequency of the term in the document, this value is always integer
+        :param frequency: frequency of the term in the document, this value is always an integer
         """
         self.document = document
         self.term_frequency = frequency
-        self.tfidf = None
-        # TODO more fields for specific search
 
     def __str__(self):
         return f"""
                 DocumentStats:
                     document_id: {self.document.id}
-                    # term occurrences: {self.term_frequency}
-                    tfidf: {self.tfidf}"""
+                    # term occurrences: {self.term_frequency}"""
 

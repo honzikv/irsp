@@ -18,7 +18,7 @@ import { RootState } from '../../../../redux/store'
 import ModifyDocumentDialog from './ModifyDocumentDialog'
 
 /**
- * Represents a search result for a document
+ * Represents a search_model result for a document
  */
 const DocumentSearchResult = (document: DocumentDto) => {
     const dispatch = useDispatch()

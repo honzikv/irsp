@@ -1,6 +1,7 @@
 import uuid
 from datetime import datetime
 from typing import List, Union
+import numpy as np
 
 
 class Document:
@@ -9,7 +10,8 @@ class Document:
     Any document that can be indexed should implement this interface.
     """
 
-    def __init__(self, doc_id: str, tokens: List[str], title: Union[str, None], text: str, date: datetime = datetime.now(),
+    def __init__(self, doc_id: str, tokens: List[str], title: Union[str, None], text: str,
+                 date: datetime = datetime.now(),
                  additional_properties: {} = None):
         """
         Initializes the document object
@@ -22,29 +24,35 @@ class Document:
         if additional_properties is None:
             additional_properties = {}
         self.id = doc_id
-        self.tokens = tokens
         self.title = title
         self.text = text
         self.date = date
-        self._bow = None  # bag of words (dictionary of term: frequency in the document)
+        self.bow = Document.calculate_bow(tokens)  # bag of words (dictionary of term: frequency in the document)
         self.properties = additional_properties
 
-    def __str__(self):
-        return f'Document:\n\tid: {self.id}\n\ttokens: {self.tokens}'
-
     @property
-    def bow(self):
+    def terms(self):
+        """
+        Returns the list of terms in the document
+        :return:
+        """
+        return list(self.bow.keys())
+
+    def __str__(self):
+        return f'Document:\n\tid: {self.id}\n\ttokens: {self.terms}'
+
+    @staticmethod
+    def calculate_bow(tokens: List[str]):
         """
         Returns the bag of words representation of the document
         This property is lazy initialized
         :return:
         """
-        if self._bow is None:
-            bow = {}
-            for token in self.tokens:
-                if token not in bow:
-                    bow[token] = 1
-                else:
-                    bow[token] += 1
-            self._bow = bow
-        return self._bow
+        bow = {}
+        for token in tokens:
+            if token not in bow:
+                bow[token] = 1
+            else:
+                bow[token] += 1
+        return bow
+

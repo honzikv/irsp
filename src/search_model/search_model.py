@@ -6,14 +6,14 @@ from src.index.term_info import TermInfo
 
 class SearchModel(ABC):
     """
-    Interface for search models
+    Interface for search_model models
     """
 
     @abstractmethod
     def __init__(self, index):
         """
         Constructor
-        :param index: index to search in
+        :param index: index to search_model in
         """
         self.inverted_idx: Dict[str, TermInfo] = index.inverted_idx
 
@@ -27,12 +27,11 @@ class SearchModel(ABC):
         """
         pass
 
-    @abstractmethod
-    def recalculate_terms(self, terms: List[TermInfo], n_docs: int):
+    def recalculate(self, terms: List[TermInfo], n_docs: int):
         """
-        Recalculates model according to the new terms
+        Recalculates the model
         :param terms: new terms
         :param n_docs: new number of documents
         :return: None
         """
-        pass
+        return  # By default this does nothing since neither TF-IDF nor Boolean models need to recalculate

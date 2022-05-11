@@ -10,9 +10,9 @@ from src.api.indices_dtos import DocumentDto, IndexDto, ModelVariant, QueryDto, 
 from src.index.document import Document
 from src.index.index_config import IndexConfig
 from src.index.term_info import TermInfo
-from src.search.boolean_model import BooleanModel
-from src.search.search_model import SearchModel
-from src.search.tfidf_model import calculate_tfidf, TfIdfModel
+from src.search_model.boolean_model import BooleanModel
+from src.search_model.search_model import SearchModel
+from src.search_model.tfidf_model import TfIdfModel
 
 # All indexes
 _indices = {}
@@ -26,15 +26,17 @@ class Index:
     Index is a structure that holds all specific documents of the same type (semantically)
     """
 
-    def __init__(self, config: IndexConfig, initial_batch: List[Document]):
+    def __init__(self, config: IndexConfig, initial_batch: List[Document] = None):
         self.config: IndexConfig = config
         self.inverted_idx: Dict[str, TermInfo] = {}  # inverted index for searching
         self.documents: Dict[str, Document] = {}  # dictionary of all documents in the index
-        self._create_initial_batch(initial_batch)
         self.models: Dict[str, SearchModel] = {
             'tfidf': TfIdfModel(self, self.config.preprocessor),
             'bool': BooleanModel(self, self.config.preprocessor)
         }
+
+        if initial_batch:  # add initial batch if it is provided
+            self.add_batch(initial_batch)
 
     @staticmethod
     def get_next_doc_id() -> str:
@@ -44,51 +46,29 @@ class Index:
         """
         return str(uuid.uuid4())
 
-    def _recalculate_terms(self, terms: List[TermInfo]):
-        """
-        Recalculates passed terms in the index
-        :param terms: Iterable of TermInfo objects
-        :return: None
-        """
-        n_docs = len(self.documents)
-        for model in self.models.values():
-            model.recalculate_terms(terms, n_docs)
-
-    def add_batch(self, batch: List[Document]):
+    def add_batch(self, documents: List[Document]):
         """
         Adds batch of documents to the index, if some documents already exist they will be replaced
-        :param batch: Iterable of documents
-        :return: None
+        :param documents: list of documents to be added
+        :return:
         """
-        # Create a set of all terms to recalculate so we do not recalculate the same term multiple times
-        terms_to_recalculate = set()
-        logger.info(f'Adding batch of {len(batch)} documents')
-        for document in batch:
-            doc_terms = set(document.tokens)
+        # Iterate over the list
+        for document in documents:
+            # If the document already exists in the index, remove it
+            if document.id in self.documents:
+                self.delete_document(document.id)
 
-            for term in doc_terms:
+            # Get list of all terms and iterate over them
+            for term in document.terms:
+                # If the term is not in the index, add it
                 if term not in self.inverted_idx:
                     self.inverted_idx[term] = TermInfo(document, term)
                 else:
+                    # Otherwise append the document to the term
                     self.inverted_idx[term].append_document(document, term)
 
-                terms_to_recalculate.add(term)
-
-                # if there is already document with the same id remove it
-                if document.id in self.documents:
-                    self.delete_document(document.id)
-
-            # Add document to the index
+            # Add the document to the index
             self.documents[document.id] = document
-
-        # Recalculate all terms that were changed
-        logger.info('Recalculating terms')
-
-        # Map to list of TermInfo objects
-        terms_to_recalculate = list(map(lambda x: self.inverted_idx[x], terms_to_recalculate))
-        self._recalculate_terms(terms_to_recalculate)
-        logger.info('Index updated, total documents in index: %s, total terms: %s', len(self.documents),
-                    len(self.inverted_idx))
 
     def add_document(self, document: Document):
         """
@@ -123,6 +103,7 @@ class Index:
         :return: List of preprocessed Document objects
         """
         count = 0
+        # noinspection PyTypeChecker
         result: List[Document] = [None] * len(documents)
         for i, document in enumerate(documents):
             result[i] = self.preprocess_document(document)
@@ -132,39 +113,36 @@ class Index:
         logger.info('Batch preprocessed, total documents in index: %s', len(self.documents))
         return result
 
-    def delete_batch(self, batch: List[str]):
+    def delete_batch(self, documents: List[str]):
         """
-        Deletes documents from the index
-        :param batch: list of document indices.py to delete
-        :return: None
+        Deletes batch of documents from the index. Ignores any nonexistent ids
+        :param documents: List of all documents to be deleted
+        :return:
         """
+        # Iterate over the list
+        for document_id in documents:
+            if document_id not in self.documents:
+                # Skip the id if it does not exist
+                logger.info(f'Document with id {document_id} does not exist in the index')
+                continue
 
-        # Same approach as in add_batch - keep unique terms to update later
-        terms_to_recalculate = set()
-        for doc_id in batch:
-            if doc_id not in self.documents:
-                continue  # nothing to delete
+            document = self.documents[document_id]  # get the document
+            del self.documents[document_id]  # delete the key
 
-            document = self.documents[doc_id]
-            doc_terms = set(document.tokens)
-            for term in doc_terms:
-                terms_to_recalculate.add(term)
-                term_info = self.inverted_idx[term]
-                term_info.remove_document(document.id)
+            # Iterate over the terms and delete the document from the term
+            for term in document.terms:
+                if term not in self.inverted_idx:
+                    # This should not happen unless the index is corrupt
+                    logger.error(f'Term {term} does not exist in the index')
+                    continue
 
-                # Delete the term if there are no more documents for it
+                term_info = self.inverted_idx[term]  # get reference to the term info
+                term_info.remove_document(document_id)  # remove the linked document from the term
                 if term_info.is_empty():
-                    del self.inverted_idx[term]
+                    # If the term info is empty delete it
+                    del self.inverted_idx[term]  # delete the term from the dictionary
 
-            # Delete the document
-            del self.documents[doc_id]
-
-        # Filter out deleted terms from the list
-        terms_to_recalculate = filter(lambda x: x in self.inverted_idx, terms_to_recalculate)
-        # Map keys to values
-        terms_to_recalculate = list(map(lambda x: self.inverted_idx[x], terms_to_recalculate))
-        self._recalculate_terms(
-            terms_to_recalculate)  # recalculate all terms that were changed and are still in the index
+        logger.info('Batch deleted, total documents in index: %s', len(self.documents))
 
     def delete_document(self, doc_id: str):
         """
@@ -174,36 +152,9 @@ class Index:
         """
         self.delete_batch([doc_id])
 
-    def _create_initial_batch(self, documents: List[Document]):
-        """
-        Creates initial batch of documents
-        :param documents:
-        :return:
-        """
-        if len(documents) == 0:
-            return
-
-        for document in documents:
-            self.documents[document.id] = document
-
-            # Get bag of words of the document - this will be used to assign documents to terms
-            bow = document.bow
-
-            inverted_idx = self.inverted_idx
-            for term, occurrences in bow.items():
-                if term not in inverted_idx:
-                    inverted_idx[term] = TermInfo(document, term)
-                else:
-                    inverted_idx[term].append_document(document, term)
-
-        n_docs = len(self.documents.values())
-        # Now calculate the tf_idf for all terms
-        for term_info in self.inverted_idx.values():
-            calculate_tfidf(term_info, n_docs)
-
     def search(self, query_dto: QueryDto) -> DocumentSearchResultDto:
         """
-        Performs search on all models
+        Performs search_model on all models
         :param query_dto: QueryDto object
         :return: dictionary for json response
         """

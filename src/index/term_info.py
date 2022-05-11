@@ -6,7 +6,7 @@ from src.index.document_info import DocumentInfo
 
 class TermInfo:
     """
-    Represents search information for specific term
+    Represents search_model information for specific term
     """
 
     def __init__(self, document: Document, term_name: str):

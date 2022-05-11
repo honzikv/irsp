@@ -5,7 +5,7 @@ from src.index.document import Document
 from src.index.term_info import TermInfo
 from src.preprocessing.boolean.boolean_parser import parse_boolean_query, QueryItem, BooleanOperator
 from src.preprocessing.preprocessing import Preprocessor
-from src.search.search_model import SearchModel
+from src.search_model.search_model import SearchModel
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +15,7 @@ class BooleanModel(SearchModel):
     Boolean Query Search model
     """
 
-    def recalculate_terms(self, terms: List[TermInfo], n_docs: int):
+    def recalculate(self, terms: List[TermInfo], n_docs: int):
         pass
 
     def __init__(self, index, preprocessor: Preprocessor):
@@ -72,7 +72,7 @@ class BooleanModel(SearchModel):
     def _find_documents_matching_term(self, term) -> Set[str]:
         """
         Find all documents containing the term
-        :param token: token to search
+        :param token: token to search_model
         :return:
         """
         return set(self.inverted_idx[term].documents.keys() if term in self.inverted_idx else [])

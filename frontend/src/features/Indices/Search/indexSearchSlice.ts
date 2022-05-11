@@ -4,7 +4,7 @@ import { RootState } from '../../../redux/store'
 import { DocumentDto, DocumentSearchResultDto, QueryDto } from '../indexDtos'
 
 /**
- * State for the index search
+ * State for the index search_model
  * This state should be reseted whenever the IndexSearch component is unmounted
  */
 export interface IndexSearchState {
@@ -18,10 +18,10 @@ export interface IndexSearchState {
 }
 
 /**
- * Sends search request to the server and updates the state
+ * Sends search_model request to the server and updates the state
  */
 export const search = createAsyncThunk(
-    'indexSearch/search',
+    'indexSearch/search_model',
     async (_, { getState }) => {
         const state = getState() as RootState
         const { query, index } = state.indexSearch // get query and index
@@ -40,7 +40,7 @@ export const search = createAsyncThunk(
                 )
             }
 
-            // Return the search result
+            // Return the search_model result
             return data.message as DocumentSearchResultDto
         } catch (err: any) {
             return Promise.reject(
@@ -95,7 +95,7 @@ const IndexSearchStateSlice = createSlice({
             ...state,
             query: undefined,
             searchResult: undefined,
-        }), // clears search result
+        }), // clears search_model result
         setIndex: (state, action) => ({ ...state, index: action.payload }), // sets the index
         setQuery: (state, action) => ({ ...state, query: action.payload }), // setter for query
         consumeErr: (state) => ({ ...state, err: undefined }), // consumes error
@@ -129,7 +129,7 @@ const IndexSearchStateSlice = createSlice({
                 return { ...state, deleteLoading: false, deleteSuccess: true }
             }
 
-            // Otherwise remove the deleted item from the search result if it exists
+            // Otherwise remove the deleted item from the search_model result if it exists
             const { documents } = state.searchResult
             const newDocuments = documents.filter(
                 (document) => document.id !== action.payload.id
