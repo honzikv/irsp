@@ -17,10 +17,10 @@ import { Fragment, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate, useParams } from 'react-router-dom'
 import SearchIcon from '@mui/icons-material/Search'
-import DocumentSearchResult from './Detail/DocumentSearchResult'
+import DocumentSearchResult from './Documents/DocumentSearchResult'
 import SearchOverview from './SearchOverview'
 import { showNotification } from '../../Notification/notificationSlice'
-import UploadDocumentJsonDialog from './Detail/UploadDocumentsDialog'
+import UploadDocumentJsonDialog from './Documents/UploadDocumentJsonDialog'
 import { RootState } from '../../../redux/store'
 import {
     clear,
@@ -31,7 +31,8 @@ import {
     setQuery,
     consumeDeleteSuccess,
 } from './indexSearchSlice'
-import ModifyDocumentDialog from './Detail/ModifyDocumentDialog'
+import ModifyDocumentDialog from './Documents/ModifyDocumentDialog'
+import VirtualizedDocumentList from './Documents/VirtualizedDocumentList'
 
 const initialValues = {
     query: '',
@@ -228,13 +229,7 @@ const IndexSearch = () => {
                             alignSelf="stretch"
                             spacing={1}
                         >
-                            {searchResult &&
-                                searchResult.documents.map((doc, idx) => (
-                                    <DocumentSearchResult
-                                        key={idx}
-                                        {...doc}
-                                    />
-                                ))}
+                            <VirtualizedDocumentList />
                             {loading && (
                                 <Stack
                                     alignItems="center"

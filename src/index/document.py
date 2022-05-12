@@ -27,7 +27,9 @@ class Document:
         self.title = title
         self.text = text
         self.date = date
-        self.bow = Document.calculate_bow(tokens)  # bag of words (dictionary of term: frequency in the document)
+        # bag of words (dictionary of term: frequency in the document)
+        # bag of words has precalculated log tf values
+        self.bow = Document.calculate_bow(tokens)
         self.properties = additional_properties
 
     @property
@@ -54,5 +56,7 @@ class Document:
                 bow[token] = 1
             else:
                 bow[token] += 1
+        for token in bow:
+            bow[token] = 1 + np.log(bow[token])
         return bow
 

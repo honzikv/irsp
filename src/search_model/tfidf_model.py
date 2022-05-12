@@ -29,13 +29,13 @@ class TfIdfModel(SearchModel):
         """
         query_terms_tfidf: Dict[str, float] = {}
         query_norm = 0
-        for term, frequency in document.bow.items():
+        for term, tf in document.bow.items():
             if term in idf_cache:
                 idf = idf_cache[term]
             else:
                 idf = np.log(n_docs / self.inverted_idx[term].document_frequency)
                 idf_cache[term] = idf
-            term_tfidf = idf * (1 + np.log(frequency))  # idf * tf
+            term_tfidf = idf * tf  # tf * idf
             query_terms_tfidf[term] = term_tfidf  # set the tfidf value
             query_norm += term_tfidf * term_tfidf  # x(i-1)^2 + x(i)^2 + ...
 
@@ -49,8 +49,8 @@ class TfIdfModel(SearchModel):
         :return: list of tuples (score, document)
         """
 
-        prof = cProfile.Profile()
-        prof.enable()
+        # prof = cProfile.Profile()
+        # prof.enable()
 
         # Preprocess the query and get all terms
         tokens = self.preprocessor.get_tokens(query)
@@ -89,7 +89,7 @@ class TfIdfModel(SearchModel):
             results[idx]['document'] = document
         # Sort the results by score descending
         results.sort(key=lambda x: x['score'], reverse=True)
-        prof.dump_stats('stats.prof')
+        # prof.dump_stats('stats.prof')
 
         # Return either the entire list if top_n is None, < 0 or greater than length of the array, otherwise return
         # a sublist
