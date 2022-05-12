@@ -28,7 +28,7 @@ class Document:
         self.date = date
         # bag of words (dictionary of term: frequency in the document)
         # bag of words has precalculated log tf values
-        self.bow_log, self.bow_dec = Document.calculate_bow(tokens)
+        self.bow_log, self.bow_int = Document.calculate_bow(tokens)
         self.length = len(tokens)  # length of the document
         self.properties = additional_properties
 
@@ -50,15 +50,14 @@ class Document:
         This property is lazy initialized
         :return:
         """
-        bow_log, bow_dec = {}, {}
+        bow_log, bow_int = {}, {}
         n_tokens = len(tokens)
         for token in tokens:
             if token not in bow_log:
-                bow_log[token], bow_dec[token] = 1, 1
+                bow_log[token], bow_int[token] = 1, 1
             else:
                 bow_log[token] += 1
-                bow_dec[token] += 1
+                bow_int[token] += 1
         for token in bow_log:
             bow_log[token] = 1 + math.log(bow_log[token])
-            bow_dec[token] = bow_dec[token] / n_tokens
-        return bow_log, bow_dec
+        return bow_log, bow_int

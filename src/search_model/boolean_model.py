@@ -23,11 +23,11 @@ class BooleanModel(SearchModel):
         self.preprocessor = preprocessor
         self.documents = index.documents
 
-    def search(self, query: str, n_items=None) -> Tuple[List[Document], Set[str]]:
+    def search(self, query: str, top_n=None) -> Tuple[List[Document], Set[str]]:
         """
         Search for documents matching the query
         :param query: a boolean query
-        :param n_items: number of items to return
+        :param top_n: number of items to return
         :return: List of all matching documents
         """
         try:
@@ -42,7 +42,10 @@ class BooleanModel(SearchModel):
 
         # DFS traverse the parsed query
         document_ids = self._dfs_traverse(preprocessed_query)
-        return [self.documents[doc_id] for doc_id in document_ids], detected_stopwords
+        total_docs = len(document_ids)
+        document_ids = document_ids if top_n is None or top_n <= 0 or top_n > len(document_ids) else document_ids[
+                                                                                                     :top_n]
+        return [self.documents[doc_id] for doc_id in document_ids], detected_stopwords, total_docs
 
     def _preprocess_query(self, query: Union[QueryItem, str], detected_stopwords: Set[str] = None):
         if isinstance(query, str):

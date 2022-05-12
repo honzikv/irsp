@@ -17,10 +17,10 @@ const mapModelToDisplayString = (model: string) => {
     switch (model) {
         case 'tfidf':
             return 'TF-IDF'
-        case 'transformers':
-            return 'Transformers'
-        default:
+        case 'boolean':
             return 'Boolean'
+        default:
+            return 'BM25'
     }
 }
 
@@ -51,7 +51,7 @@ const SearchOverview = () => {
 
         const model = query.model ?? 'tfidf'
         setModelName(mapModelToDisplayString(model))
-        setTotalHits(searchResult.documents.length)
+        setTotalHits(searchResult.totalDocuments)
 
         if (searchResult.documents.length === 0) {
             dispatch(
@@ -97,8 +97,8 @@ const SearchOverview = () => {
 
     return (
         <Fragment>
-            <Card variant="outlined" sx={{ minWidth: '100%', my: 2 }}>
-                <CardContent>
+            <Card variant="outlined" sx={{ minWidth: '100%', mb: 1 }}>
+                <CardContent sx={{py: .75}}>
                     <Grid
                         container
                         // alignSelf="flex-start"
@@ -143,11 +143,6 @@ const SearchOverview = () => {
                         // Only show the download button if the user has results
                         searchResult && searchResult.documents.length > 0 && (
                             <Stack
-                                sx={{
-                                    ml: 'auto',
-                                    mt: 2,
-                                    minWidth: '0%',
-                                }}
                                 alignItems="flex-end"
                                 alignSelf="flex-end"
                                 justifyContent="flex-end"
@@ -157,6 +152,7 @@ const SearchOverview = () => {
                                     disabled={downloadButtonDisabled}
                                     onClick={downloadAsJson}
                                     variant="contained"
+                                    size="small"
                                 >
                                     Download all as JSON
                                 </Button>
@@ -166,7 +162,7 @@ const SearchOverview = () => {
                 </CardContent>
             </Card>
             {totalHits && totalHits > 0 ? (
-                <Divider sx={{ my: 1 }} />
+                <Divider sx={{ mb: 1 }} />
             ) : (
                 <Typography color="primary" align="center">
                     No items matching this query were found

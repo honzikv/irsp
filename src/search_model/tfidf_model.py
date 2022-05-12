@@ -51,12 +51,8 @@ class TfIdfModel(SearchModel):
         Search using tf-idf as a score
         :param query: query as a string
         :param top_n: number of results to return
-        :return: list of tuples (score, document)
+        :return: list of tuples (score, document) and total number of documents
         """
-
-        # prof = cProfile.Profile()
-        # prof.enable()
-
         # Preprocess the query and get all terms
         tokens = self.preprocessor.get_tokens(query)
         terms = set(tokens)
@@ -81,12 +77,13 @@ class TfIdfModel(SearchModel):
             results[idx]['score'] = similarity
             results[idx]['document'] = document
         # Sort the results by score descending
+
+        total_docs = len(results)
         results.sort(key=lambda x: x['score'], reverse=True)
-        # prof.dump_stats('stats.prof')
 
         # Return either the entire list if top_n is None, < 0 or greater than length of the array, otherwise return
         # a sublist
-        return results if top_n is None or top_n <= 0 or top_n > len(results) else results[0:top_n]
+        return results if top_n is None or top_n <= 0 or top_n > len(results) else results[0:top_n], total_docs
 
     def recalculate(self):
         """

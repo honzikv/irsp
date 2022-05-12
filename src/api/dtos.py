@@ -89,6 +89,7 @@ class DocumentDto(Model):
 class DocumentSearchResultDto(Model):
     documents: List[DocumentDto]
     stopwords: Optional[List[str]]
+    totalDocuments: int
 
 
 class IndexDto(Model):

@@ -33,6 +33,7 @@ export interface IndexDto {
 
 export interface DocumentSearchResultDto {
     documents: DocumentDto[]
+    totalDocuments: number
     stopwords?: string[]
 }
 

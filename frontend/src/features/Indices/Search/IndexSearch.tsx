@@ -1,4 +1,5 @@
 import {
+    Button,
     CircularProgress,
     FormControl,
     Grid,
@@ -17,7 +18,6 @@ import { Fragment, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate, useParams } from 'react-router-dom'
 import SearchIcon from '@mui/icons-material/Search'
-import DocumentSearchResult from './Documents/DocumentSearchResult'
 import SearchOverview from './SearchOverview'
 import { showNotification } from '../../Notification/notificationSlice'
 import UploadDocumentJsonDialog from './Documents/UploadDocumentJsonDialog'
@@ -33,12 +33,6 @@ import {
 } from './indexSearchSlice'
 import ModifyDocumentDialog from './Documents/ModifyDocumentDialog'
 import VirtualizedDocumentList from './Documents/VirtualizedDocumentList'
-
-const initialValues = {
-    query: '',
-    model: 'tfidf',
-    // topK: 10,
-}
 
 // Detail component which shows the search_model bar, results and some configuration
 const IndexSearch = () => {
@@ -95,7 +89,12 @@ const IndexSearch = () => {
     }, [err, dispatch])
 
     const formik = useFormik({
-        initialValues,
+        initialValues: {
+            query: '',
+            model: 'tfidf',
+            topK: 'all',
+        },
+
         onSubmit: async (values) => {
             dispatch(clearSearchResult()) // clear search_model result
             // set the query
@@ -103,6 +102,7 @@ const IndexSearch = () => {
                 setQuery({
                     ...values,
                     model: values.model,
+                    topK: values.topK === 'all' ? undefined : values.topK,
                 })
             )
             // and begin searching
@@ -138,15 +138,16 @@ const IndexSearch = () => {
                                 spacing={2}
                                 direction="row"
                                 justifyContent="space-around"
-                                alignItems="center"
+                                alignItems="start"
                                 alignSelf="stretch"
                             >
                                 <Grid item xs={12} md={3}>
-                                    <FormControl fullWidth>
+                                    <FormControl fullWidth sx={{ mb: 1 }}>
                                         <InputLabel id="searchModelLabel">
                                             Search Model
                                         </InputLabel>
                                         <Select
+                                            size="small"
                                             labelId="searchModelLabel"
                                             id="searchModel"
                                             value={formik.values.model}
@@ -167,8 +168,36 @@ const IndexSearch = () => {
                                                 Bool
                                             </MenuItem>
                                             <MenuItem value="bm25">
-                                                BM25 
+                                                BM25
                                             </MenuItem>
+                                        </Select>
+                                    </FormControl>
+                                    <FormControl fullWidth >
+                                    <InputLabel id="topKLabel">
+                                            Max number of results
+                                        </InputLabel>
+                                        <Select
+                                            labelId="topKLabel"
+                                            id="topK"
+                                            size="small"
+                                            value={formik.values.topK}
+                                            onChange={(
+                                                event: SelectChangeEvent
+                                            ) => {
+                                                formik.setFieldValue(
+                                                    'topK',
+                                                    event.target.value
+                                                )
+                                            }}
+                                            label="Max number of results"
+                                        >
+                                            <MenuItem value="all">
+                                                All
+                                            </MenuItem>
+                                            <MenuItem value={10}>10</MenuItem>
+                                            <MenuItem value={50}>50</MenuItem>
+                                            <MenuItem value={100}>100</MenuItem>
+                                            <MenuItem value={200}>200</MenuItem>
                                         </Select>
                                     </FormControl>
                                 </Grid>
@@ -176,7 +205,7 @@ const IndexSearch = () => {
                                     <Paper
                                         variant="outlined"
                                         sx={{
-                                            p: '2px 4px',
+                                            p: '4px 4px',
                                             alignItems: 'center',
                                             display: 'flex',
                                         }}
@@ -195,31 +224,40 @@ const IndexSearch = () => {
                                                 'aria-label': 'search',
                                             }}
                                         />
-                                        <IconButton
+                                        <Button
+                                            aria-label="search"
+                                            color="inherit"
+                                            type="submit"
+                                            endIcon={<SearchIcon />}
+                                        >
+                                            Search
+                                        </Button>
+                                        {/* <IconButton
                                             type="submit"
                                             sx={{ p: '10px' }}
                                             aria-label="search"
                                         >
+                                            Search
                                             <SearchIcon />
-                                        </IconButton>
+                                        </IconButton> */}
                                     </Paper>
+                                    {name && (
+                                        <Stack
+                                            alignSelf="flex-end"
+                                            alignItems="flex-end"
+                                            justifyContent="flex-end"
+                                            direction="row"
+                                            spacing={2}
+                                            sx={{ my: 2 }}
+                                        >
+                                            <ModifyDocumentDialog variant="create" />
+                                            <UploadDocumentJsonDialog />
+                                        </Stack>
+                                    )}
                                 </Grid>
                             </Grid>
                         </form>
 
-                        {name && (
-                            <Stack
-                                alignSelf="flex-end"
-                                alignItems="flex-end"
-                                justifyContent="flex-end"
-                                direction="row"
-                                spacing={2}
-                                sx={{ my: 2 }}
-                            >
-                                <ModifyDocumentDialog variant="create" />
-                                <UploadDocumentJsonDialog />
-                            </Stack>
-                        )}
                         {searchResult && <SearchOverview />}
 
                         <Stack

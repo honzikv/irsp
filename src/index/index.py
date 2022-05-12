@@ -180,11 +180,13 @@ class Index:
             return DocumentSearchResultDto(
                 documents=[DocumentDto.from_domain_object(item) for item in search_result[0]],
                 stopwords=search_result[1],
+                totalDocuments=search_result[2]
             )
 
         # Otherwise all other models return list of dictionaries that contain the document domain object and score
         return DocumentSearchResultDto(
-            documents=[DocumentDto.from_domain_object(item['document'], item['score']) for item in search_result],
+            documents=[DocumentDto.from_domain_object(item['document'], item['score']) for item in search_result[0]],
+            totalDocuments=search_result[1]
         )
 
     def to_dto(self, n_example_docs=10) -> IndexDto:

@@ -141,6 +141,7 @@ const IndexSearchStateSlice = createSlice({
                 searchResult: {
                     ...state.searchResult,
                     documents: newDocuments,
+                    totalDocuments: newDocuments.length,
                 },
             }
         })

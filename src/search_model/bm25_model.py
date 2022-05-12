@@ -33,7 +33,7 @@ class Bm25Model(SearchModel):
     def _calculate_document_bm25(self, document: Document, query: Dict[str, int]):
         score = 0.0
         for term, query_tf in query.items():
-            if term not in document.bow_dec:
+            if term not in document.bow_int:
                 continue
 
             if term not in self.idf_cache:  # cache the term's idf value
@@ -43,7 +43,7 @@ class Bm25Model(SearchModel):
             else:
                 idf = self.idf_cache[term]
 
-            tf = document.bow_dec[term]
+            tf = document.bow_int[term]
             tf = (tf * (self.k1 + 1)) / (
                     tf + self.k1 * (1 - self.b + self.b * document.length / self.average_document_length))
 
@@ -76,7 +76,8 @@ class Bm25Model(SearchModel):
 
         # Sort the documents by score
         results.sort(key=lambda x: x['score'], reverse=True)
+        total_docs = len(results)
 
         # Return either the entire list if top_n is None, < 0 or greater than length of the array, otherwise return
         # a sublist
-        return results if top_n is None or top_n <= 0 or top_n > len(results) else results[0:top_n]
+        return results if top_n is None or top_n <= 0 or top_n > len(results) else results[0:top_n], total_docs

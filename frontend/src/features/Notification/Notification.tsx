@@ -43,6 +43,7 @@ const Notification = () => {
                 open={open}
                 autoHideDuration={autohideDuration}
                 anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+                onClose={() => setAutohideDuration(null)}
             >
                 <Alert severity={severity} onClose={closeNotification}>
                     {displayMessage}

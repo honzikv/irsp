@@ -1,4 +1,10 @@
-import { ChangeEvent, Fragment, FunctionComponent, useEffect, useState } from 'react'
+import {
+    ChangeEvent,
+    Fragment,
+    FunctionComponent,
+    useEffect,
+    useState,
+} from 'react'
 import Dialog, { DialogProps } from '@mui/material/Dialog'
 import {
     Button,
@@ -45,13 +51,6 @@ const CreateIndexDialog: FunctionComponent<CreateIndexDialogProps> = ({
     }, [loading])
 
     const dispatch = useDispatch()
-
-    const hideDialog = () => {
-        if (loading) {
-            return
-        }
-        setOpen(false)
-    }
 
     const showDialog = () => {
         setOpen(true)
@@ -143,14 +142,13 @@ const CreateIndexDialog: FunctionComponent<CreateIndexDialogProps> = ({
                 )
             }
 
-            // If the request was successful close the dialogclear values
-            if (wasSuccessful) {
-                hideDialog()
-                resetForm()
-            }
-
             // Always fetch new indices
             dispatch(fetchIndices())
+
+            // If the request was successful close the dialogclear values
+            if (wasSuccessful) {
+                close()
+            }
         },
     })
 
@@ -167,10 +165,13 @@ const CreateIndexDialog: FunctionComponent<CreateIndexDialogProps> = ({
     }
 
     // Method called on closing the dialog
-    const onClose = () => {
-        hideDialog()
+    const close = () => {
+        if (loading) {
+            return
+        }
         setFileName(undefined)
         formik.resetForm()
+        setOpen(false)
     }
 
     const clearSelectedFile = () => {
@@ -193,7 +194,7 @@ const CreateIndexDialog: FunctionComponent<CreateIndexDialogProps> = ({
             <Dialog
                 open={open}
                 fullWidth
-                onClose={onClose}
+                onClose={close}
                 maxWidth={maxWidth || 'lg'}
             >
                 <Typography sx={{ ml: 2, mt: 2 }} variant="h5" fontWeight="600">
@@ -213,8 +214,7 @@ const CreateIndexDialog: FunctionComponent<CreateIndexDialogProps> = ({
                                 formik.touched.name
                             }
                             helperText={
-                                formik.errors.name &&
-                                formik.touched.name
+                                formik.errors.name && formik.touched.name
                             }
                         />
                         <FormControl fullWidth sx={{ mb: 2 }}>
