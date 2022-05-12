@@ -166,8 +166,8 @@ const IndexSearch = () => {
                                             <MenuItem value="bool">
                                                 Bool
                                             </MenuItem>
-                                            <MenuItem value="transformers">
-                                                Transformers 🚗
+                                            <MenuItem value="bm25">
+                                                BM25 
                                             </MenuItem>
                                         </Select>
                                     </FormControl>

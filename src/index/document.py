@@ -1,7 +1,6 @@
-import uuid
+import math
 from datetime import datetime
 from typing import List, Union
-import numpy as np
 
 
 class Document:
@@ -29,7 +28,8 @@ class Document:
         self.date = date
         # bag of words (dictionary of term: frequency in the document)
         # bag of words has precalculated log tf values
-        self.bow = Document.calculate_bow(tokens)
+        self.bow_log, self.bow_dec = Document.calculate_bow(tokens)
+        self.length = len(tokens)  # length of the document
         self.properties = additional_properties
 
     @property
@@ -38,7 +38,7 @@ class Document:
         Returns the list of terms in the document
         :return:
         """
-        return list(self.bow.keys())
+        return list(self.bow_log.keys())
 
     def __str__(self):
         return f'Document:\n\tid: {self.id}\n\ttokens: {self.terms}'
@@ -50,13 +50,15 @@ class Document:
         This property is lazy initialized
         :return:
         """
-        bow = {}
+        bow_log, bow_dec = {}, {}
+        n_tokens = len(tokens)
         for token in tokens:
-            if token not in bow:
-                bow[token] = 1
+            if token not in bow_log:
+                bow_log[token], bow_dec[token] = 1, 1
             else:
-                bow[token] += 1
-        for token in bow:
-            bow[token] = 1 + np.log(bow[token])
-        return bow
-
+                bow_log[token] += 1
+                bow_dec[token] += 1
+        for token in bow_log:
+            bow_log[token] = 1 + math.log(bow_log[token])
+            bow_dec[token] = bow_dec[token] / n_tokens
+        return bow_log, bow_dec

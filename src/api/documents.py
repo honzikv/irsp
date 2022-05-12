@@ -2,7 +2,7 @@ import logging
 
 from fastapi import APIRouter, UploadFile
 
-from src.api.indices_dtos import DocumentDto
+from src.api.dtos import DocumentDto
 from src.index.index import get_index
 
 logger = logging.getLogger(__name__)

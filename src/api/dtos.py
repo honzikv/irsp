@@ -107,7 +107,7 @@ class ModelVariant(Enum):
     """
     TFIDF = 'tfidf'
     BOOL = 'bool'
-    TRANSFORMERS = 'transformers'
+    BM25 = 'bm25'
 
 
 class QueryDto(Model):

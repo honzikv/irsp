@@ -6,17 +6,18 @@ from typing import List, Dict
 
 from fastapi import UploadFile
 
-from src.api.indices_dtos import DocumentDto, IndexDto, ModelVariant, QueryDto, DocumentSearchResultDto
+from src.api.dtos import DocumentDto, IndexDto, ModelVariant, QueryDto, DocumentSearchResultDto
 from src.index.document import Document
 from src.index.index_config import IndexConfig
 from src.index.term_info import TermInfo
+from src.search_model.bm25_model import Bm25Model
 from src.search_model.boolean_model import BooleanModel
 from src.search_model.search_model import SearchModel
 from src.search_model.tfidf_model import TfIdfModel
 
 # All indexes
 _indices = {}
-models = ['tf_idf', 'bool', 'transformers']
+models = ['tf_idf', 'bool', 'bm25']
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +33,8 @@ class Index:
         self.documents: Dict[str, Document] = {}  # dictionary of all documents in the index
         self.models: Dict[str, SearchModel] = {
             'tfidf': TfIdfModel(self, self.config.preprocessor),
-            'bool': BooleanModel(self, self.config.preprocessor)
+            'bool': BooleanModel(self, self.config.preprocessor),
+            'bm25': Bm25Model(self, self.config.preprocessor)
         }
 
         if initial_batch:  # add initial batch if it is provided
@@ -45,6 +47,14 @@ class Index:
         :return: str
         """
         return str(uuid.uuid4())
+
+    def _recalculate_models(self):
+        """
+        Runs recalculate() method of all models
+        :return:
+        """
+        for model in self.models.values():
+            model.recalculate()
 
     def add_batch(self, documents: List[Document]):
         """
@@ -69,6 +79,8 @@ class Index:
 
             # Add the document to the index
             self.documents[document.id] = document
+
+        self._recalculate_models()
 
     def add_document(self, document: Document):
         """
@@ -142,7 +154,8 @@ class Index:
                     # If the term info is empty delete it
                     del self.inverted_idx[term]  # delete the term from the dictionary
 
-        logger.info('Batch deleted, total documents in index: %s', len(self.documents))
+        self._recalculate_models()
+        logger.info(f'Batch of {len(documents)} documents deleted')
 
     def delete_document(self, doc_id: str):
         """

@@ -16,7 +16,7 @@ class TermInfo:
         :param term_name: name of the term
         """
         # Documents are stored as a dictionary with document id as key and document as value
-        doc_term_frequency = document.bow[term_name]
+        doc_term_frequency = document.bow_log[term_name]
         self.documents: Dict[str, DocumentInfo] = {document.id: DocumentInfo(document, doc_term_frequency)}
         self.collection_frequency = doc_term_frequency
         self.document_frequency = 1
@@ -40,7 +40,7 @@ class TermInfo:
             self.collection_frequency -= old_document_info.term_frequency
 
         # Append the new document
-        term_frequency = document.bow[term_name]
+        term_frequency = document.bow_log[term_name]
         self.collection_frequency += term_frequency
         document_info = DocumentInfo(document, term_frequency)
         self.documents[document.id] = document_info

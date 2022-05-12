@@ -51,7 +51,7 @@ index.add_batch(docs_domain)
 
 len(index.documents)
 #%%
-from src.api.indices_dtos import QueryDto, ModelVariant
+from src.api.dtos import QueryDto, ModelVariant
 
 # A simple boolean query
 boolean_query = '(NOT (Are AND Are)) AND Fish tropical'

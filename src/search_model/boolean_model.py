@@ -15,7 +15,7 @@ class BooleanModel(SearchModel):
     Boolean Query Search model
     """
 
-    def recalculate(self, terms: List[TermInfo], n_docs: int):
+    def refresh(self, terms: List[TermInfo], n_docs: int):
         pass
 
     def __init__(self, index, preprocessor: Preprocessor):
