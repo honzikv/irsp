@@ -23,7 +23,7 @@ class BooleanModel(SearchModel):
         self.preprocessor = preprocessor
         self.documents = index.documents
 
-    def search(self, query: str, top_n=None) -> Tuple[List[Document], Set[str]]:
+    def search(self, query: str, top_n=None):
         """
         Search for documents matching the query
         :param query: a boolean query

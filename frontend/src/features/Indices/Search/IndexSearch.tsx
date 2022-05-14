@@ -142,7 +142,7 @@ const IndexSearch = () => {
                                 alignSelf="stretch"
                             >
                                 <Grid item xs={12} md={3}>
-                                    <FormControl fullWidth sx={{ mb: 1 }}>
+                                    <FormControl fullWidth sx={{ mb: 2 }}>
                                         <InputLabel id="searchModelLabel">
                                             Search Model
                                         </InputLabel>

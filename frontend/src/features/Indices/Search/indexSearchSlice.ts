@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
+import { createAsyncThunk, createSlice, current } from '@reduxjs/toolkit'
 import axiosInstance from '../../../conf/axios'
 import { RootState } from '../../../redux/store'
 import { DocumentDto, DocumentSearchResultDto, QueryDto } from '../indexDtos'
@@ -91,18 +91,50 @@ const IndexSearchStateSlice = createSlice({
     initialState,
     reducers: {
         clear: () => ({} as IndexSearchState), // this is used whenever the user navigates away from the page
-        clearSearchResult: (state) => ({
+        clearSearchResult: (state: any) => ({
             ...state,
             query: undefined,
             searchResult: undefined,
         }), // clears search_model result
-        setIndex: (state, action) => ({ ...state, index: action.payload }), // sets the index
-        setQuery: (state, action) => ({ ...state, query: action.payload }), // setter for query
-        consumeErr: (state) => ({ ...state, err: undefined }), // consumes error
-        consumeDeleteSuccess: (state) => ({
+        setIndex: (state: any, action: { payload: any }) => ({
+            ...state,
+            index: action.payload,
+        }), // sets the index
+        setQuery: (state: any, action: { payload: any }) => ({
+            ...state,
+            query: action.payload,
+        }), // setter for query
+        consumeErr: (state: any) => ({ ...state, err: undefined }), // consumes error
+        consumeDeleteSuccess: (state: any) => ({
             ...state,
             deleteSuccess: undefined,
         }), // consumes delete success
+        setDocument: (state: any, action: any) => {
+            const document = action.payload
+            if (!state.searchResult?.documents) {
+                return { ...state }
+            }
+
+            const documents = current(state.searchResult.documents)
+            const index = documents.findIndex(
+                (item: any) => item.id === document.id
+            )
+            if (index === -1) {
+                return { ...state }
+            }
+
+            return {
+                ...state,
+                searchResult: {
+                    ...state.searchResult,
+                    documents: [
+                        ...documents.slice(0, index),
+                        document,
+                        ...documents.slice(index + 1),
+                    ],
+                },
+            }
+        },
     },
     extraReducers: (builder) => {
         builder.addCase(search.pending, (state) => ({
@@ -161,6 +193,7 @@ export const {
     clearSearchResult,
     setIndex,
     consumeDeleteSuccess,
+    setDocument,
 } = IndexSearchStateSlice.actions
 const indexSearchReducer = IndexSearchStateSlice.reducer
 export default indexSearchReducer
