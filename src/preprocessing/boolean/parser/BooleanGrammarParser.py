@@ -17,10 +17,10 @@ def serializedATN():
         7,1,1,0,0,0,8,13,5,7,0,0,9,10,5,7,0,0,10,11,5,6,0,0,11,13,3,2,1,
         0,12,8,1,0,0,0,12,9,1,0,0,0,13,3,1,0,0,0,14,15,6,2,-1,0,15,16,5,
         4,0,0,16,17,3,4,2,0,17,18,5,5,0,0,18,24,1,0,0,0,19,20,5,3,0,0,20,
-        21,5,6,0,0,21,24,3,4,2,2,22,24,3,2,1,0,23,14,1,0,0,0,23,19,1,0,0,
-        0,23,22,1,0,0,0,24,37,1,0,0,0,25,26,10,4,0,0,26,27,5,6,0,0,27,28,
-        5,1,0,0,28,29,5,6,0,0,29,36,3,4,2,5,30,31,10,3,0,0,31,32,5,6,0,0,
-        32,33,5,2,0,0,33,34,5,6,0,0,34,36,3,4,2,4,35,25,1,0,0,0,35,30,1,
+        21,5,6,0,0,21,24,3,4,2,4,22,24,3,2,1,0,23,14,1,0,0,0,23,19,1,0,0,
+        0,23,22,1,0,0,0,24,37,1,0,0,0,25,26,10,3,0,0,26,27,5,6,0,0,27,28,
+        5,1,0,0,28,29,5,6,0,0,29,36,3,4,2,4,30,31,10,2,0,0,31,32,5,6,0,0,
+        32,33,5,2,0,0,33,34,5,6,0,0,34,36,3,4,2,3,35,25,1,0,0,0,35,30,1,
         0,0,0,36,39,1,0,0,0,37,35,1,0,0,0,37,38,1,0,0,0,38,5,1,0,0,0,39,
         37,1,0,0,0,4,12,23,35,37
     ]
@@ -386,7 +386,7 @@ class BooleanGrammarParser ( Parser ):
                 self.state = 20
                 self.match(BooleanGrammarParser.WHITESPACE)
                 self.state = 21
-                self.expression(2)
+                self.expression(4)
                 pass
             elif token in [BooleanGrammarParser.QUERY_TERM]:
                 localctx = BooleanGrammarParser.QueryTermContext(self, localctx)
@@ -414,9 +414,9 @@ class BooleanGrammarParser ( Parser ):
                         localctx = BooleanGrammarParser.AndContext(self, BooleanGrammarParser.ExpressionContext(self, _parentctx, _parentState))
                         self.pushNewRecursionContext(localctx, _startState, self.RULE_expression)
                         self.state = 25
-                        if not self.precpred(self._ctx, 4):
+                        if not self.precpred(self._ctx, 3):
                             from antlr4.error.Errors import FailedPredicateException
-                            raise FailedPredicateException(self, "self.precpred(self._ctx, 4)")
+                            raise FailedPredicateException(self, "self.precpred(self._ctx, 3)")
                         self.state = 26
                         self.match(BooleanGrammarParser.WHITESPACE)
                         self.state = 27
@@ -424,16 +424,16 @@ class BooleanGrammarParser ( Parser ):
                         self.state = 28
                         self.match(BooleanGrammarParser.WHITESPACE)
                         self.state = 29
-                        self.expression(5)
+                        self.expression(4)
                         pass
 
                     elif la_ == 2:
                         localctx = BooleanGrammarParser.OrContext(self, BooleanGrammarParser.ExpressionContext(self, _parentctx, _parentState))
                         self.pushNewRecursionContext(localctx, _startState, self.RULE_expression)
                         self.state = 30
-                        if not self.precpred(self._ctx, 3):
+                        if not self.precpred(self._ctx, 2):
                             from antlr4.error.Errors import FailedPredicateException
-                            raise FailedPredicateException(self, "self.precpred(self._ctx, 3)")
+                            raise FailedPredicateException(self, "self.precpred(self._ctx, 2)")
                         self.state = 31
                         self.match(BooleanGrammarParser.WHITESPACE)
                         self.state = 32
@@ -441,7 +441,7 @@ class BooleanGrammarParser ( Parser ):
                         self.state = 33
                         self.match(BooleanGrammarParser.WHITESPACE)
                         self.state = 34
-                        self.expression(4)
+                        self.expression(3)
                         pass
 
              
@@ -471,11 +471,11 @@ class BooleanGrammarParser ( Parser ):
 
     def expression_sempred(self, localctx:ExpressionContext, predIndex:int):
             if predIndex == 0:
-                return self.precpred(self._ctx, 4)
+                return self.precpred(self._ctx, 3)
          
 
             if predIndex == 1:
-                return self.precpred(self._ctx, 3)
+                return self.precpred(self._ctx, 2)
          
 
 

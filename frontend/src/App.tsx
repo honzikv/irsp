@@ -1,6 +1,6 @@
 import './App.css'
 import { Grid, PaletteMode, Paper, Snackbar } from '@mui/material'
-import { createTheme, Theme, ThemeProvider } from '@mui/material/styles'
+import { createTheme, PaletteColor, Theme, ThemeProvider } from '@mui/material/styles'
 import { Route, Routes } from 'react-router-dom'
 import Home from './features/Home/Home'
 import Indices from './features/Indices/Indices'
@@ -15,9 +15,39 @@ import IndexSearch from './features/Indices/Search/IndexSearch'
 const App = () => {
 
     const lightThemePalette = {
+        primary: {
+            main: '#5260ff',
+            dark: '#3171e0',
+            light: '#4c8dff'
+        },
+        secondary: {
+            main: '#5D6B73',
+            dark: '#56646C',
+            light: '#6D7F89',
+        },
+        success: {
+            main: '#2dd36f',
+            dark: '#28ba62',
+            light: '#42d77d',
+        },
+        warning: {
+            main: '#ffc409',
+            dark: '#e0ac08',
+            light: '#ffca22'
+        },
+        error: {
+            main: '#eb445a',
+            dark: '#cf3c4f',
+            light: '#ed576b'
+        }
     }
 
     const darkThemePalette = {
+        primary: {
+            main: '#3dc2ff',
+            dark: '#36abe0',
+            light: '#50c8ff',
+        },
     }
 
     const getPalette = (paletteMode: PaletteMode) => {
@@ -76,7 +106,7 @@ const App = () => {
                     <Grid item xs={4} md={2}>
                         <Navigation />
                     </Grid>
-                    <Grid item xs={8} md={8}>
+                    <Grid item xs={12} md={8} sx={{mx: .5}}>
                         <Routes>
                             <Route path="/" element={<Home />} />
                             <Route path="/indices" element={<Indices />} />

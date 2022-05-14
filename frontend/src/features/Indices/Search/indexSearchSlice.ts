@@ -10,11 +10,14 @@ import { DocumentDto, DocumentSearchResultDto, QueryDto } from '../indexDtos'
 export interface IndexSearchState {
     query?: QueryDto
     index?: string
-    searchResult?: DocumentSearchResultDto
     loading: boolean
     deleteLoading: boolean
     err?: string
     deleteSuccess?: boolean
+    // From SearchResultDto
+    documents?: DocumentDto[]
+    totalDocuments: number
+    stopwords?: string[]
 }
 
 /**
@@ -84,6 +87,7 @@ export const deleteDocument = createAsyncThunk(
 const initialState: IndexSearchState = {
     loading: false,
     deleteLoading: false,
+    totalDocuments: 0,
 }
 
 const IndexSearchStateSlice = createSlice({
@@ -91,78 +95,70 @@ const IndexSearchStateSlice = createSlice({
     initialState,
     reducers: {
         clear: () => ({} as IndexSearchState), // this is used whenever the user navigates away from the page
-        clearSearchResult: (state: any) => ({
+        clearSearchResult: (state: IndexSearchState) => ({
             ...state,
             query: undefined,
             searchResult: undefined,
         }), // clears search_model result
-        setIndex: (state: any, action: { payload: any }) => ({
+        setIndex: (state: IndexSearchState, action: { payload: any }) => ({
             ...state,
             index: action.payload,
         }), // sets the index
-        setQuery: (state: any, action: { payload: any }) => ({
+        setQuery: (state: IndexSearchState, action: { payload: any }) => ({
             ...state,
             query: action.payload,
         }), // setter for query
-        consumeErr: (state: any) => ({ ...state, err: undefined }), // consumes error
-        consumeDeleteSuccess: (state: any) => ({
+        consumeErr: (state: IndexSearchState) => ({ ...state, err: undefined }), // consumes error
+        consumeDeleteSuccess: (state: IndexSearchState) => ({
             ...state,
             deleteSuccess: undefined,
         }), // consumes delete success
-        setDocument: (state: any, action: any) => {
+        setDocument: (state: IndexSearchState, action: any) => {
             const document = action.payload
-            if (!state.searchResult?.documents) {
-                return { ...state }
-            }
-
-            const documents = current(state.searchResult.documents)
-            const index = documents.findIndex(
-                (item: any) => item.id === document.id
-            )
-            if (index === -1) {
+            if (!state.documents) {
                 return { ...state }
             }
 
             return {
                 ...state,
-                searchResult: {
-                    ...state.searchResult,
-                    documents: [
-                        ...documents.slice(0, index),
-                        document,
-                        ...documents.slice(index + 1),
-                    ],
-                },
+                documents: [...state.documents].map((item) =>
+                    item.id === document.id ? document : item
+                ),
             }
         },
     },
     extraReducers: (builder) => {
-        builder.addCase(search.pending, (state) => ({
+        builder.addCase(search.pending, (state: IndexSearchState) => ({
             ...state,
             loading: true,
         }))
-        builder.addCase(search.fulfilled, (state, action) => ({
+        builder.addCase(search.fulfilled, (state: IndexSearchState, action) => ({
             ...state,
             loading: false,
-            searchResult: action.payload,
+            ...action.payload,
         }))
-        builder.addCase(search.rejected, (state, action) => ({
+        builder.addCase(search.rejected, (state: IndexSearchState, action) => ({
             ...state,
             loading: false,
             err: action.error.message,
         }))
 
-        builder.addCase(deleteDocument.pending, (state) => ({
+        builder.addCase(deleteDocument.pending, (state: IndexSearchState) => ({
             ...state,
             deleteLoading: true,
         }))
-        builder.addCase(deleteDocument.fulfilled, (state, action) => {
-            if (!state.searchResult) {
-                return { ...state, deleteLoading: false, deleteSuccess: true }
+        builder.addCase(deleteDocument.fulfilled, (state: IndexSearchState, action) => {
+            if (!state.documents) {
+                return {
+                    ...state,
+                    deleteLoading: false,
+                    deleteSuccess: true,
+                    totalDocuments: 0,
+                }
             }
 
             // Otherwise remove the deleted item from the search_model result if it exists
-            const { documents } = state.searchResult
+            const { documents } = state
             const newDocuments = documents.filter(
                 (document) => document.id !== action.payload.id
             )
@@ -170,11 +166,8 @@ const IndexSearchStateSlice = createSlice({
                 ...state,
                 deleteLoading: false,
                 deleteSuccess: true,
-                searchResult: {
-                    ...state.searchResult,
-                    documents: newDocuments,
-                    totalDocuments: newDocuments.length,
-                },
+                documents: newDocuments,
+                totalDocuments: state.totalDocuments - 1,
             }
         })
         builder.addCase(deleteDocument.rejected, (state, action) => ({

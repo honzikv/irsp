@@ -38,10 +38,10 @@ class BooleanModel(SearchModel):
             raise ValueError('Query is not valid')
 
         if preprocessed_query is None:
-            return [], detected_stopwords
+            return [], detected_stopwords, 0
 
         # DFS traverse the parsed query
-        document_ids = self._dfs_traverse(preprocessed_query)
+        document_ids = list(self._dfs_traverse(preprocessed_query))
         total_docs = len(document_ids)
         document_ids = document_ids if top_n is None or top_n <= 0 or top_n > len(document_ids) else document_ids[
                                                                                                      :top_n]

@@ -17,7 +17,7 @@ const UploadDocumentJsonDialog = () => {
 
     const [open, setOpen] = useState(false)
     const [fileName, setFileName] = useState<string | undefined>(undefined)
-    const [submitButtonEnabled, setSubmitButtonEnabled] = useState(true)
+    const [uploaded, setUploaded] = useState(true)
 
     const dispatch = useDispatch()
 
@@ -39,7 +39,7 @@ const UploadDocumentJsonDialog = () => {
         validationSchema,
         onSubmit: async (values) => {
             try {
-                setSubmitButtonEnabled(false)
+                setUploaded(false)
                 const formData = new FormData()
                 formData.append('dataFile', values.file as any)
 
@@ -79,7 +79,7 @@ const UploadDocumentJsonDialog = () => {
                     })
                 )
             }
-            setSubmitButtonEnabled(true)
+            setUploaded(true)
         },
     })
 
@@ -92,6 +92,7 @@ const UploadDocumentJsonDialog = () => {
     }
 
     const onClose = () => {
+        
         hideDialog()
         setFileName(undefined)
         formik.resetForm()
@@ -112,7 +113,7 @@ const UploadDocumentJsonDialog = () => {
                 <Button
                     startIcon={<AttachmentIcon />}
                     variant="outlined"
-                    color="primary"
+                    color="secondary"
                     onClick={showDialog}
                 >
                     Upload Documents in File
@@ -166,6 +167,7 @@ const UploadDocumentJsonDialog = () => {
                                         size="small"
                                         endIcon={<DeleteIcon />}
                                         onClick={clearSelectedFile}
+                                        disabled={!uploaded}
                                     >
                                         Remove Selection
                                     </Button>
@@ -180,7 +182,7 @@ const UploadDocumentJsonDialog = () => {
                             <Button
                                 type="submit"
                                 variant="contained"
-                                disabled={!submitButtonEnabled || !fileName}
+                                disabled={!uploaded || !fileName}
                                 startIcon={<Publish />}
                             >
                                 Upload File

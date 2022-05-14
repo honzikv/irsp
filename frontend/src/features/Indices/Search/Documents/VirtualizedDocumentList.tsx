@@ -1,13 +1,8 @@
-import { List } from '@mui/material'
 import {
-    CSSProperties,
     Fragment,
-    FunctionComponent,
-    ReactNode,
-    Ref,
 } from 'react'
 import { useSelector } from 'react-redux'
-import { GroupedVirtuoso, Virtuoso } from 'react-virtuoso'
+import { Virtuoso } from 'react-virtuoso'
 import { RootState } from '../../../../redux/store'
 import DocumentSearchResult from './DocumentSearchResult'
 
@@ -27,7 +22,7 @@ const Footer = () => {
 
 const VirtualizedDocumentList = () => {
     const documents = useSelector(
-        (state: RootState) => state.indexSearch.searchResult?.documents
+        (state: RootState) => state.indexSearch.documents
     )
 
     return (

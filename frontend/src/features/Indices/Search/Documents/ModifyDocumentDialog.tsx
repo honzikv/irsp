@@ -48,7 +48,7 @@ const ModifyDocumentDialog: FunctionComponent<ModifyDocumentDialogProps> = ({
             return {
                 title: 'Create document',
                 variant: 'outlined' as 'outlined' | 'contained',
-                color: 'primary',
+                color: 'secondary',
                 size: 'medium' as 'small' | 'medium' | 'large',
                 apiSuccessMessage: 'New document was successfully added 😸',
             }
@@ -92,7 +92,7 @@ const ModifyDocumentDialog: FunctionComponent<ModifyDocumentDialogProps> = ({
                     )
                     canCloseDialog = true
                     // Set document values
-                    dispatch(setDocument(data))
+                    dispatch(setDocument(values))
                 } else {
                     // else show error notification and keep the dialog open
                     dispatch(
@@ -184,7 +184,14 @@ const ModifyDocumentDialog: FunctionComponent<ModifyDocumentDialogProps> = ({
             <Button
                 variant={config.variant}
                 size={config.size}
-                startIcon={variant === 'create' ? <AddCircleOutlineIcon /> : <EditIcon />}
+                color={config.color as 'primary' | 'secondary'}
+                startIcon={
+                    variant === 'create' ? (
+                        <AddCircleOutlineIcon />
+                    ) : (
+                        <EditIcon />
+                    )
+                }
                 onClick={() => setOpen(true)}
             >
                 {variant === 'create' ? 'Add New Document' : 'Modify'}
@@ -193,8 +200,22 @@ const ModifyDocumentDialog: FunctionComponent<ModifyDocumentDialogProps> = ({
                 <DialogTitle>
                     {variant === 'create' ? 'Add New Document' : 'Modify'}
                 </DialogTitle>
-                <DialogContent>
+                <DialogContent sx={{mt: 1}}>
                     <form onSubmit={formik.handleSubmit}>
+                        <TextField
+                            label="ID"
+                            name="id"
+                            value={formik.values.id}
+                            onChange={formik.handleChange}
+                            onBlur={formik.handleBlur}
+                            variant="outlined"
+                            fullWidth
+                            error={
+                                formik.touched.id && Boolean(formik.errors.id)
+                            }
+                            helperText={formik.touched.id && formik.errors.id}
+                            sx={{ mt: 1, mb: 2 }}
+                        />
                         <TextField
                             label="Title"
                             name="title"
@@ -221,7 +242,7 @@ const ModifyDocumentDialog: FunctionComponent<ModifyDocumentDialogProps> = ({
                             variant="outlined"
                             fullWidth
                             multiline
-                            rows={5}
+                            rows={10}
                             error={
                                 formik.touched.text &&
                                 Boolean(formik.errors.text)
@@ -231,28 +252,15 @@ const ModifyDocumentDialog: FunctionComponent<ModifyDocumentDialogProps> = ({
                             }
                             sx={{ mb: 2 }}
                         />
-                        <TextField
-                            label="id"
-                            name="id"
-                            value={formik.values.id}
-                            onChange={formik.handleChange}
-                            onBlur={formik.handleBlur}
-                            variant="outlined"
-                            fullWidth
-                            error={
-                                formik.touched.id && Boolean(formik.errors.id)
-                            }
-                            helperText={formik.touched.id && formik.errors.id}
-                            sx={{ mb: 2 }}
-                        />
-                        <JSONInput
+
+                        {/* <JSONInput
                             locale={localeEn}
                             // label="Additional properties"
                             // name="additionalProperties"
                             onChange={(val: any) => console.log(val)}
                             height="30vh"
                             width="100%"
-                        />
+                        /> */}
                         <Stack alignItems="flex-end" sx={{ mt: 1 }}>
                             <Button
                                 type="submit"

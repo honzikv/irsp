@@ -94,12 +94,12 @@ const DocumentDetailDialog: FunctionComponent<DocumentDto> = (props: DocumentDto
                         }}
                     >
                         <Paper variant="outlined" sx={{px: 2, py: 1}}>
-                        <Typography variant="h6">Text</Typography>
+                        {/* <Typography variant="h6">Text</Typography> */}
                         <Typography variant="body1">{text}</Typography>
                         </Paper>
                     </Box>
-                    <Divider sx={{ mt: 1 }} />
-                    <Typography variant="h4" fontWeight="bold" sx={{ mt: 2 }}>
+                    {/* <Divider sx={{ mt: 1 }} /> */}
+                    <Typography variant="h6" fontWeight="bold" sx={{ mt: 1, mb: 0, pb: 0 }}>
                         Additional Properties
                     </Typography>
                     <JSONPretty data={additionalProperties} />

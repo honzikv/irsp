@@ -17,6 +17,8 @@ import { deleteDocument } from '../indexSearchSlice'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from '../../../../redux/store'
 import ModifyDocumentDialog from './ModifyDocumentDialog'
+import ButtonActionConfirmationDialog from '../../../Dialogs/ButtonActionConfirmationDialog'
+import DeleteIcon from '@mui/icons-material/Delete'
 
 export interface DocumentSearchResultProps {
     document: DocumentDto
@@ -91,7 +93,7 @@ const DocumentSearchResult: FunctionComponent<DocumentSearchResultProps> = ({
                         sx={{ mt: 1, pb: 0 }}
                         alignItems="flex-end"
                     >
-                        <Button
+                        {/* <Button
                             startIcon={<DeleteOutline />}
                             variant="contained"
                             color="error"
@@ -101,9 +103,21 @@ const DocumentSearchResult: FunctionComponent<DocumentSearchResultProps> = ({
                                 dispatch(deleteDocument(document))
                             }}
                         >
-                            {deleteLoading && <CircularProgress />}
                             Delete
-                        </Button>
+                        </Button> */}
+                        <ButtonActionConfirmationDialog
+                            onConfirm={() => dispatch(deleteDocument(document))}
+                            triggerButtonVariant="contained"
+                            triggerButtonColor="error"
+                            triggerButtonText="Delete"
+                            cancelButtonColor="error"
+                            title={`Delete document ${document.id}`}
+                            buttonSize="small"
+                            message={
+                                'Are you sure you want to delete this document? This action is irreversible 😨'
+                            }
+                            StartIcon={DeleteIcon}
+                        />
                         <ModifyDocumentDialog
                             variant="modify"
                             documentId={document.id}

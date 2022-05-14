@@ -14,7 +14,7 @@ import {
     Typography,
 } from '@mui/material'
 import { useFormik } from 'formik'
-import { Fragment, useEffect } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate, useParams } from 'react-router-dom'
 import SearchIcon from '@mui/icons-material/Search'
@@ -42,10 +42,8 @@ const IndexSearch = () => {
     const { name } = useParams()
     const navigate = useNavigate()
 
-    // Search result
-    const searchResult = useSelector(
-        (state: RootState) => state.indexSearch.searchResult
-    )
+    // Loaded documents
+    const documents = useSelector((state: RootState) => state.indexSearch.documents)
 
     // Whether the search_model is loading something from the API
     const loading = useSelector((state: RootState) => state.indexSearch.loading)
@@ -258,7 +256,7 @@ const IndexSearch = () => {
                             </Grid>
                         </form>
 
-                        {searchResult && <SearchOverview />}
+                        {documents && <SearchOverview />}
 
                         <Stack
                             direction="column"

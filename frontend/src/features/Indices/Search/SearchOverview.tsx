@@ -17,7 +17,7 @@ const mapModelToDisplayString = (model: string) => {
     switch (model) {
         case 'tfidf':
             return 'TF-IDF'
-        case 'boolean':
+        case 'bool':
             return 'Boolean'
         default:
             return 'BM25'
@@ -32,10 +32,14 @@ const SearchOverview = () => {
 
     const dispatch = useDispatch()
 
-    const searchResult = useSelector(
-        (state: RootState) => state.indexSearch.searchResult
+    const documents = useSelector(
+        (state: RootState) => state.indexSearch.documents
+    )
+    const totalDocuments = useSelector(
+        (state: RootState) => state.indexSearch.totalDocuments
     )
     const query = useSelector((state: RootState) => state.indexSearch.query)
+    const stopwords = useSelector((state: RootState) => state.indexSearch.stopwords)
 
     const resetState = () => {
         setBestScore(undefined)
@@ -45,15 +49,15 @@ const SearchOverview = () => {
 
     useEffect(() => {
         resetState()
-        if (!query || !searchResult) {
+        if (!query || !documents) {
             return
         }
 
         const model = query.model ?? 'tfidf'
         setModelName(mapModelToDisplayString(model))
-        setTotalHits(searchResult.totalDocuments)
+        setTotalHits(totalDocuments)
 
-        if (searchResult.documents.length === 0) {
+        if (documents.length === 0) {
             dispatch(
                 showNotification({
                     message: 'No results matching this query were found',
@@ -70,12 +74,10 @@ const SearchOverview = () => {
         }
 
         // Items are ordered in descending order, so the first one is the best
-        setBestScore(searchResult.documents[0].score)
+        setBestScore(documents[0].score)
         // The last one is the worst
-        setWorstScore(
-            searchResult.documents[searchResult.documents.length - 1].score
-        )
-    }, [dispatch, query, searchResult])
+        setWorstScore(documents[documents.length - 1].score)
+    }, [dispatch, query, documents, totalDocuments])
 
     // Whether the download button should be disabled
     const [downloadButtonDisabled, setDownloadButtonDisabled] = useState(false)
@@ -83,7 +85,7 @@ const SearchOverview = () => {
     // Serializes props and saves it to file which the user will be prompted to save
     const downloadAsJson = () => {
         setDownloadButtonDisabled(true)
-        const json = JSON.stringify(searchResult?.documents ?? [], null, 4)
+        const json = JSON.stringify(documents ?? [], null, 4)
         const blob = new Blob([json], { type: 'application/json' })
         const href = URL.createObjectURL(blob)
         const link = document.createElement('a')
@@ -98,7 +100,7 @@ const SearchOverview = () => {
     return (
         <Fragment>
             <Card variant="outlined" sx={{ minWidth: '100%', mb: 1 }}>
-                <CardContent sx={{py: .75}}>
+                <CardContent sx={{ py: 0.75 }}>
                     <Grid
                         container
                         // alignSelf="flex-start"
@@ -115,7 +117,7 @@ const SearchOverview = () => {
                             {modelName && (
                                 <Typography
                                     variant="body1"
-                                    sx={{ fontSize: 24 }}
+                                    sx={{ fontSize: 16 }}
                                 >
                                     Model: {modelName}
                                 </Typography>
@@ -141,12 +143,21 @@ const SearchOverview = () => {
                     </Grid>
                     {
                         // Only show the download button if the user has results
-                        searchResult && searchResult.documents.length > 0 && (
+                        documents && documents.length > 0 && (
                             <Stack
-                                alignItems="flex-end"
+                                alignItems="center"
                                 alignSelf="flex-end"
-                                justifyContent="flex-end"
+                                justifyContent="space-between"
+                                direction="row"
+                                sx={{mt: 1}}
+                                spacing={1}
                             >
+                                {(
+                                    <Typography align="left" color="error">
+                                        { stopwords && stopwords.length > 0 && `Stopwords detected during search: "${stopwords.join(', ')}"`}{' '}
+                                    </Typography>
+                                )}
+
                                 <Button
                                     startIcon={<DownloadIcon />}
                                     disabled={downloadButtonDisabled}

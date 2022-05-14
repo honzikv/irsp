@@ -51,7 +51,6 @@ class Document:
         :return:
         """
         bow_log, bow_int = {}, {}
-        n_tokens = len(tokens)
         for token in tokens:
             if token not in bow_log:
                 bow_log[token], bow_int[token] = 1, 1

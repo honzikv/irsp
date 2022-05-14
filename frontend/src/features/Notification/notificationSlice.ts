@@ -17,14 +17,14 @@ const notificationSlice = createSlice({
     name: 'notification',
     initialState,
     reducers: {
-        showNotification: (state, action) => ({
+        showNotification: (state: any, action: any) => ({
             ...state,
             message: action.payload.message,
             severity: action.payload.severity,
             autohideSecs: action.payload.autohideSecs,
         }),
         // consumes the message so it is not displayed after the page gets refreshed
-        consumeNotification: (state) => ({
+        consumeNotification: (state: any) => ({
             ...initialState,
         }),
     },
